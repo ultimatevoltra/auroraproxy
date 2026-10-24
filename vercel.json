@@ -1,3 +1,8 @@
 {
-  "rewrites": []
+  "version": 2,
+  "functions": {
+    "api/proxy.js": {
+      "maxDuration": 30
+    }
+  }
 }
