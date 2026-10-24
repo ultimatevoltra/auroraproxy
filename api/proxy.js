@@ -7,21 +7,7 @@
 //
 // RUNTIME-NEUTRAL: uses only Web-standard globals (fetch, atob/btoa, TextDecoder,
 // Uint8Array, AbortController) so it runs on BOTH the Vercel Node runtime AND
-// the Vercel Edge runtime with no Buffer/Node-isms. This fixes the earlier
-// "FUNCTION_INVOCATION_FAILED" crash caused by Node-only APIs.
-//
-// Reverse-engineered 3-step flow (verified live 2026-10-24):
-//   1. POST https://cdn.proxyium.com/proxyrequest.php { type, proxy_country, url }
-//      -> HTML containing  new Function(atob('<b64>'))  == hex == JS with:
-//          location.href = 'https://<node>/__cpi.php?s=<token>&r=<b64>&__cpo=1'
-//   2. GET  <node>/__cpi.php?s=<token>&r=<b64>&__cpo=1
-//      -> CroxyProxy shell page + Set-Cookie: __cpc=<token> + data-r="<b64>"
-//      where data-r decodes to:  https://<node>?<path>&__cpo=<base64(origin)>
-//   3. GET  https://<node>?<path>&__cpo=<base64(origin)>  WITH  Cookie: __cpc=<token>
-//      -> the REAL target response (content + rotating exit IP)
-//
-// The `node` host changes on every signup = rotating egress. The __cpc token
-// is the sticky-session key; the __cpo param carries the re-encoded target.
+// the Vercel Edge runtime with no Buffer/Node-isms.
 //
 // API surface:
 //   GET/POST /api/proxy?url=...&country=...&mode=auto|text|json|base64|stream
@@ -50,8 +36,6 @@ const BINARY_CT = [
   "application/zip", "application/x-zip", "application/x-rar-compressed",
   "application/x-7z-compressed", "application/gzip", "application/x-tar", "font/",
 ];
-
-// --- browser-standard base64 / hex helpers (no Buffer) ----------------------
 
 function atobSafe(b64) {
   let s = String(b64).replace(/\s+/g, "");
@@ -338,8 +322,7 @@ async function route(request, env) {
   let params = {};
   for (const k of ["url", "country", "mode", "method", "timeout", "gateway", "headers", "body"]) {
     const v = url.searchParams.get(k);
-    const val = v;
-    if (val !== null) params[k] = val;
+    if (v !== null) { params[k] = v; }
   }
   if (request.method === "POST" || request.method === "PUT" || request.method === "PATCH") {
     const ct = request.headers.get("Content-Type") || "";
