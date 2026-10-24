@@ -213,7 +213,6 @@ async function launchExit(target, cc, timeoutMs) {
     try { finalUrl = atobSafe(dm[1]); } catch (_) {}
   }
   if (!finalUrl) {
-    // build node URL manually: node + target path + __cpo=base64(origin)
     let u;
     try { u = new URL(target); } catch (_) { throw new Error("invalid target"); }
     const origin = u.protocol + "//" + u.host;
@@ -318,7 +317,6 @@ async function route(request, env) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
-  // --- meta endpoints ---
   if (pathname === "/api/health") {
     return json({ status: "ok", version: "1.0.0", timestamp: new Date().toISOString() });
   }
@@ -329,7 +327,6 @@ async function route(request, env) {
     return json({ status: "ok", engine: "rotating-exit", note: "stateless on serverless" });
   }
 
-  // --- live egress IP (proxybin-style) ---
   if (pathname === "/api/proxy/ip" || pathname === "/api/ip") {
     const cc = (url.searchParams.get("country") || "").trim();
     const t0 = Date.now();
@@ -348,7 +345,6 @@ async function route(request, env) {
     }
   }
 
-  // --- auth gate (only meaningful for /api/proxy) ---
   if (pathname !== "/api/proxy") {
     return json({ ok: false, error: "Endpoint not found", code: 404 }, 404);
   }
@@ -356,11 +352,10 @@ async function route(request, env) {
     return json({ ok: false, error: "unauthorized", code: 401 }, 401);
   }
 
-  // --- parse params from query OR JSON/form body ---
   let params = {};
   for (const k of ["url", "country", "mode", "method", "timeout", "gateway", "headers", "body"]) {
     const v = url.searchParams.get(k);
-    if (v !== null)"params[k] = v;
+    if (v !== null) params[k] = v;
   }
   if (request.method === "POST" || request.method === "PUT" || request.method === "PATCH") {
     const ct = request.headers.get("Content-Type") || "";
@@ -386,7 +381,6 @@ async function route(request, env) {
   if (!target) return json({ ok: false, error: "Missing 'url' parameter", code: 400 }, 400);
   if (!/^https?:\/\//i.test(target)) return json({ ok: false, error: "Invalid URL", code: 400 }, 400);
 
-  // --- stream mode: raw passthrough with Range support ---
   if (mode === "stream") {
     try {
       const exit = await launchExit(target, cc, 20000);
@@ -415,7 +409,6 @@ async function route(request, env) {
     }
   }
 
-  // --- buffered modes ---
   const res = useGateway ? await proxyBuffered(target, cc, env) : await proxyDirect(target, timeoutMs);
   if (!res.ok) {
     return json({ ok: false, error: res.err || "fetch failed", code: 502 }, 502);
@@ -452,7 +445,6 @@ async function route(request, env) {
     }, (res.code >= 200 && res.code < 400) ? res.code : 200);
   }
 
-  // default: raw binary replay
   const hdr = new Headers();
   if (res.ct) hdr.set("Content-Type", res.ct);
   hdr.set("X-Proxy-Node", res.node || "rotating-exit");
