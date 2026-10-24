@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>AuroraProxy — Rotating Exit Proxy</title>
+<meta name="description" content="AuroraProxy — a rotating-exit proxy gateway with multiple deep themes." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+/* ================= Design tokens ================= */
+:root, [data-theme="midnight"]{
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --display:"Space Grotesk",var(--font);
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --bg:#0a0f1e; --bg-1:#0e1428; --bg-2:#131a33;
+  --panel:rgba(255,255,255,.03); --panel-solid:#111833; --panel-raised:#182044;
+  --border:rgba(255,255,255,.08); --border-soft:rgba(255,255,255,.05); --border-strong:rgba(255,255,255,.16);
+  --text:#eaf0ff; --text-dim:#a7b1d4; --text-faint:#69749a;
+  --accent:#6c8cff; --accent-hi:#8aa5ff; --accent-glow:rgba(108,140,255,.45);
+  --accent-2:#22d3ee; --accent-ok:#34d399; --accent-warn:#fbbf24; --accent-bad:#fb7185;
+  --grad:linear-gradient(135deg,#6c8cff 0%,#8b5cf6 60%,#22d3ee 100%);
+  --grad-subtle:linear-gradient(135deg,rgba(108,140,255,.16),rgba(34,211,238,.10));
+  --radius-sm:8px; --radius:13px; --radius-lg:18px; --radius-pill:999px;
+  --shadow-panel:0 18px 46px -18px rgba(0,0,0,.6);
+}
+[data-theme="forest"]{ --bg:#0a120c; --bg-1:#0d1610; --bg-2:#122018;
+  --panel-solid:#102018; --panel-raised:#162a20;
+  --border:rgba(255,255,255,.08); --border-soft:rgba(255,255,255,.05); --border-strong:rgba(255,255,255,.16);
+  --text:#e8f5eb; --text-dim:#a8c9b2; --text-faint:#6c8a75;
+  --accent:#22c55e; --accent-hi:#4ade80; --accent-glow:rgba(34,197,94,.45);
+  --accent-2:#14b8a6; --accent-ok:#22c55e; --accent-warn:#f59e0b; --accent-bad:#ef4444;
+  --grad:linear-gradient(135deg,#22c55e 0%,#14b8a6 60%,#84cc16 100%);
+  --grad-subtle:linear-gradient(135deg,rgba(34,197,94,.16),rgba(132,204,22,.10)); }
+[data-theme="amethyst"]{ --bg:#150a1e; --bg-1:#1b0e28; --bg-2:#221233;
+  --panel-solid:#1c1030; --panel-raised:#271640;
+  --text:#f1e9fb; --text-dim:#c8b3e2; --text-faint:#8a72ab;
+  --accent:#a855f7; --accent-hi:#c084fc; --accent-glow:rgba(168,85,247,.45);
+  --accent-2:#ec4899; --accent-ok:#34d399; --accent-warn:#fbbf24; --accent-bad:#fb7185;
+  --grad:linear-gradient(135deg,#a855f7 0%,#ec4899 60%,#f43f5e 100%);
+  --grad-subtle:linear-gradient(135deg,rgba(168,85,247,.18),rgba(236,72,153,.12)); }
+[data-theme="abyss"]{ --bg:#04161f; --bg-1:#061c27; --bg-2:#0a2532;
+  --panel-solid:#0a2532; --panel-raised:#0f3040;
+  --text:#e5f6fb; --text-dim:#a8d4e2; --text-faint:#68919f;
+  --accent:#0ea5e9; --accent-hi:#38bdf8; --accent-glow:rgba(14,165,233,.45);
+  --accent-2:#22d3ee; --accent-ok:#34d399; --accent-warn:#fbbf24; --accent-bad:#fb7185;
+  --grad:linear-gradient(135deg,#0ea5e9 0%,#22d3ee 60%,#34d399 100%);
+  --grad-subtle:linear-gradient(135deg,rgba(14,165,233,.18),rgba(34,211,238,.10)); }
+[data-theme="noir"]{ --bg:#0a0a0a; --bg-1:#101010; --bg-2:#161616;
+  --panel-solid:#161616; --panel-raised:#1e1e1e;
+  --text:#f5f5f5; --text-dim:#b3b3b3; --text-faint:#737373;
+  --accent:#e5e5e5; --accent-hi:#ffffff; --accent-glow:rgba(229,229,229,.3);
+  --accent-2:#a3a3a3; --accent-ok:#4ade80; --accent-warn:#fbbf24; --accent-bad:#f87171;
+  --grad:linear-gradient(135deg,#e5e5e5 0%,#a3a3a3 100%);
+  --grad-subtle:linear-gradient(135deg,rgba(229,229,229,.10),rgba(163,163,163,.06)); }
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;overflow-x:hidden}
+a{color:var(--accent-hi);text-decoration:none}
+::selection{background:var(--accent-glow)}
+
+/* custom scrollbar */
+*{scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:99px}
+
+.container{max-width:1120px;margin:0 auto;padding:0 22px}
+
+/* ===== Header ===== */
+.nav{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.4);backdrop-filter:blur(18px);border-bottom:1px solid var(--border-soft)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1120px;margin:0 auto;padding:0 22px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:18px;color:var(--text);letter-spacing:-.01em}
+.brand .logo{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;color:#fff;font-size:16px;box-shadow:var(--shadow-panel)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.nav-link{background:none;border:none;color:var(--text-dim);font-size:13.5px;font-weight:500;cursor:pointer;padding:8px 12px;border-radius:var(--radius-sm);transition:all .15s;font-family:var(--font)}
+.nav-link:hover{color:var(--text);background:var(--panel)}
+.theme-btn{width:36px;height:36px;border-radius:var(--radius-sm);background:var(--panel);border:1px solid var(--border);cursor:pointer;color:var(--text-dim);font-size:16px;display:grid;place-items:center;transition:all .15s}
+.theme-btn:hover{border-color:var(--border-strong);color:var(--text)}
+
+/* theme dropdown */
+.theme-wrap{position:relative}
+.theme-menu{position:absolute;top:calc(100% + 8px);right:0;background:var(--panel-solid);border:1px solid var(--border);border-radius:var(--radius);padding:6px;min-width:170px;display:none;flex-direction:column;gap:2px;box-shadow:var(--shadow-panel)}
+.theme-wrap.open .theme-menu{display:flex}
+.theme-item{display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text-dim);padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);font-size:13px;text-align:left;transition:all .15s}
+.theme-item:hover{color:var(--text);background:var(--panel-raised)}
+.theme-item.active{color:var(--text);font-weight:600}
+.theme-item .swatch{width:16px;height:16px;border-radius:50%;flex:0 0 auto;border:1px solid var(--border-strong)}
+
+/* ===== Pages ===== */
+.page{display:none}
+.page.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ===== Hero ===== */
+.hero{padding:70px 0 40px;text-align:center;position:relative}
+.hero::before{content:"";position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:min(720px,95vw);height:320px;background:radial-gradient(circle,rgba(108,140,255,.22) 0%,transparent 70%);filter:blur(40px);z-index:-1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:var(--radius-pill);background:var(--grad-subtle);border:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--accent-hi);margin-bottom:22px}
+.dot-pulse{width:7px;height:7px;border-radius:50%;background:var(--accent-ok);box-shadow:0 0 10px var(--accent-ok)}
+.hero h1{font-family:var(--display);font-size:clamp(34px,5.6vw,58px);font-weight:700;line-height:1.08;letter-spacing:-.03em;margin-bottom:18px}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{color:var(--text-dim);font-size:clamp(15px,1.8vw,18px);max-width:620px;margin:0 auto 30px;line-height:1.55}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ===== Buttons ===== */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .18s}
+.btn-primary{background:var(--grad);color:#fff;box-shadow:0 8px 26px -6px var(--accent-glow)}
+.btn-primary:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.btn-ghost{background:var(--panel);border-color:var(--border);color:var(--text)}
+.btn-ghost:hover{border-color:var(--border-strong);color:var(--accent-hi)}
+
+/* ===== Stats ===== */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:30px 0 42px}
+.stat{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center}
+.stat .num{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--accent-hi)}
+.stat .lbl{font-size:12px;color:var(--text-faint);margin-top:5px;text-transform:uppercase;letter-spacing:.06em}
+
+/* ===== Sections ===== */
+.section{padding:32px 0}
+.section-head{margin-bottom:24px}
+.eyebrow{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent-hi);letter-spacing:.16em;text-transform:uppercase;margin-bottom:8px}
+.section-head h2{font-family:var(--display);font-size:clamp(24px,3.4vw,32px);letter-spacing:-.02em;margin-bottom:8px;font-weight:700}
+.section-head p{color:var(--text-dim);font-size:15px}
+
+/* ===== Proxy box ===== */
+.proxy-box{border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--panel);overflow:hidden;box-shadow:var(--shadow-panel)}
+.proxy-bar{display:flex;align-items:center;gap:8px;padding:14px 18px;border-bottom:1px solid var(--border-soft)}
+.p-dot{width:11px;height:11px;border-radius:50%}
+.p-dot.r{background:#ff5f57}.p-dot.y{background:#febc2e}.p-dot.g{background:#28c840}
+.proxy-title{margin-left:8px;font-family:var(--mono);font-size:12.5px;color:var(--text-faint)}
+.proxy-body{padding:22px}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.field label{font-size:11.5px;color:var(--text-faint);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;color:var(--text);font-family:var(--mono);font-size:14px;outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:var(--accent)}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row .field{flex:1;min-width:140px}
+.result{background:var(--bg-0);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:16px;min-height:70px;overflow-x:auto;word-break:break-word}
+.result.loading{color:var(--text-faint);display:flex;align-items:center;gap:10px}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* feature cards */
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.feature{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;transition:transform .2s,border-color .2s}
+.feature:hover{transform:translateY(-3px);border-color:var(--border-strong)}
+.feature .ico{font-size:28px;margin-bottom:12px;display:inline-block}
+.feature h3{font-size:16px;font-weight:700;margin-bottom:7px}
+.feature p{font-size:13.5px;color:var(--text-dim);line-height:1.5}
+
+/* theme grid (settings) */
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.theme-card{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;cursor:pointer;transition:all .18s;position:relative}
+.theme-card:hover{border-color:var(--border-strong)}
+.theme-card.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.theme-card .swatches{display:flex;gap:6px;margin-bottom:12px}
+.theme-card .swatches span{width:22px;height:22px;border-radius:7px;border:1px solid var(--border-strong)}
+.theme-card .tname{font-weight:600;font-size:14px}
+.theme-card .tdesc{font-size:11.5px;color:var(--text-faint);margin-top:3px}
+.theme-card .check{position:absolute;top:12px;right:12px;color:var(--accent-hi);font-weight:700;opacity:0}
+.theme-card.active .check{opacity:1}
+
+/* footer */
+.footer{border-top:1px solid var(--border-soft);margin-top:40px;padding:28px 0;text-align:center;color:var(--text-faint);font-size:13px}
+
+@media (max-width:600px){
+  .container{padding:0 14px}
+  .hero{padding:50px 0 30px}
+  .row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#" data-nav="home"><span class="logo">✦</span><span>Aurora<b style="background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">Proxy</b></span></a>
+    <div class="nav-actions">
+      <button class="nav-link" data-nav="home" data-i18n="nav.home">Home</button>
+      <button class="nav-link" data-nav="proxy" data-i18n="nav.proxy">Proxy</button>
+      <button class="nav-link" data-nav="settings" data-i18n="nav.settings">Settings</button>
+      <div class="theme-wrap" id="themeWrap">
+        <button class="theme-btn" id="themeBtn" aria-label="Theme">🎨</button>
+        <div class="theme-menu" id="themeMenu"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- HOME -->
+<main class="page active" id="page-home">
+  <section class="hero">
+    <span class="hero-badge"><span class="dot-pulse"></span> Rotating exit network · online</span>
+    <h1>Browse the web through<br><span class="grad">rotating exits.</span></h1>
+    <p class="hero-sub" data-i18n="home.sub">AuroraProxy routes your request through a fresh rotating exit node each time — keep your origin private while reaching any page.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" data-nav="proxy">🚀 Open a URL</button>
+      <button class="btn btn-ghost" data-nav="settings">🎨 Choose theme</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="num" id="stat-active">–</div><div class="lbl" data-i18n="stat.active">Active exits</div></div>
+      <div class="stat"><div class="num" id="stat-countries">–</div><div class="lbl" data-i18n="stat.countries">Countries</div></div>
+      <div class="stat"><div class="num">5</div><div class="lbl" data-i18n="stat.themes">Themes</div></div>
+      <div class="stat"><div class="num">1.0.0</div><div class="lbl" data-i18n="stat.version">Version</div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="feat.eyebrow">Features</span>
+        <h2 data-i18n="feat.title">Private by design</h2>
+      </div>
+      <div class="features">
+        <div class="feature"><span class="ico">🔄</span><h3 data-i18n="feat.f1.t">Rotating exits</h3><p data-i18n="feat.f1.d">Each request uses a fresh, sticky exit session so your identity never leaks.</p></div>
+        <div class="feature"><span class="ico">🌍</span><h3 data-i18n="feat.f2.t">Geo diversity</h3><p data-i18n="feat.f2.d">Exits across multiple regions for better reachability and speed.</p></div>
+        <div class="feature"><span class="ico">🎨</span><h3 data-i18n="feat.f3.t">Deep themes</h3><p data-i18n="feat.f3.d">Five beautiful, deep palettes tuned for long sessions.</p></div>
+        <div class="feature"><span class="ico">⚡</span><h3 data-i18n="feat.f4.t">No keys</h3><p data-i18n="feat.f4.d">Zero API keys, zero sign-up. Just paste a URL and go.</p></div>
+      </div>
+    </div>
+  </section>
+  <footer class="footer">AuroraProxy · rotating-exit gateway · v1.0.0</footer>
+</main>
+
+<!-- PROXY -->
+<main class="page" id="page-proxy">
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="proxy.eyebrow">Gateway</span>
+        <h2 data-i18n="proxy.title">Fetch through a rotating exit</h2>
+        <p data-i18n="proxy.sub">Enter any https URL. AuroraProxy will reach it through a fresh rotating exit.</p>
+      </div>
+      <div class="proxy-box">
+        <div class="proxy-bar"><span class="p-dot r"></span><span class="p-dot y"></span><span class="p-dot g"></span><span class="proxy-title">auroraproxy · fetch</span></div>
+        <div class="proxy-body">
+          <div class="field">
+            <label data-i18n="proxy.url">Target URL</label>
+            <input type="url" id="px-url" placeholder="https://example.com" />
+          </div>
+          <div class="row">
+            <div class="field">
+              <label data-i18n="proxy.country">Exit country</label>
+              <select id="px-country" style="font-size:14px;font-family:var(--font)">
+                <option value="">Auto (rotate)</option>
+                <option value="us">🇺🇸 United States</option>
+                <option value="eu">🇪🇺 Europe</option>
+                <option value="sg">🇸🇬 Singapore</option>
+                <option value="jp">🇯🇵 Japan</option>
+                <option value="in">🇮🇳 India</option>
+                <option value="br">🇧🇷 Brazil</option>
+              </select>
+            </div>
+            <div class="field">
+              <label data-i18n="proxy.mode">Response mode</label>
+              <select id="px-mode" style="font-size:14px;font-family:var(--font)">
+                <option value="raw">Raw (replay original)</option>
+                <option value="json">JSON (metadata)</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="px-go" style="width:100%;justify-content:center">🚀 Fetch URL</button>
+          <div class="result" id="px-result"><span style="color:var(--text-faint)">Response will appear here.</span></div>
+          <div style="margin-top:12px;font-family:var(--mono);font-size:12px;color:var(--text-faint)" id="px-meta"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer class="footer">AuroraProxy · v1.0.0</footer>
+</main>
+
+<!-- SETTINGS -->
+<main class="page" id="page-settings">
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="set.eyebrow">Appearance</span>
+        <h2 data-i18n="set.title">Choose a deep theme</h2>
+        <p data-i18n="set.sub">Five hand-tuned palettes. Your choice is saved locally.</p>
+      </div>
+      <div class="theme-grid" id="themeGrid"></div>
+    </div>
+  </section>
+  <footer class="footer">AuroraProxy · v1.0.0</footer>
+</main>
+
+<script>
+const THEMES = [
+  { id:"midnight", name:"Midnight Indigo", desc:"Deep indigo + electric blue", colors:["#6c8cff","#8b5cf6","#22d3ee"] },
+  { id:"forest",   name:"Deep Forest",      desc:"Dark green + teal",          colors:["#22c55e","#14b8a6","#84cc16"] },
+  { id:"amethyst", name:"Royal Amethyst",   desc:"Purple + pink",              colors:["#a855f7","#ec4899","#f43f5e"] },
+  { id:"abyss",    name:"Ocean Abyss",      desc:"Deep blue + cyan",           colors:["#0ea5e9","#22d3ee","#34d399"] },
+  { id:"noir",     name:"Obsidian Noir",    desc:"Monochrome black",           colors:["#e5e5e5","#a3a3a3","#737373"] },
+];
+
+const I18N = {
+  en: {
+    "nav.home":"Home","nav.proxy":"Proxy","nav.settings":"Settings",
+    "home.sub":"AuroraProxy routes your request through a fresh rotating exit node each time — keep your origin private while reaching any page.",
+    "stat.active":"Active exits","stat.countries":"Countries","stat.themes":"Themes","stat.version":"Version",
+    "feat.eyebrow":"Features","feat.title":"Private by design",
+    "feat.f1.t":"Rotating exits","feat.f1.d":"Each request uses a fresh, sticky exit session so your identity never leaks.",
+    "feat.f2.t":"Geo diversity","feat.f2.d":"Exits across multiple regions for better reachability and speed.",
+    "feat.f3.t":"Deep themes","feat.f3.d":"Five beautiful, deep palettes tuned for long sessions.",
+    "feat.f4.t":"No keys","feat.f4.d":"Zero API keys, zero sign-up. Just paste a URL and go.",
+    "proxy.eyebrow":"Gateway","proxy.title":"Fetch through a rotating exit","proxy.sub":"Enter any https URL. AuroraProxy will reach it through a fresh rotating exit.",
+    "proxy.url":"Target URL","proxy.country":"Exit country","proxy.mode":"Response mode",
+    "set.eyebrow":"Appearance","set.title":"Choose a deep theme","set.sub":"Five hand-tuned palettes. Your choice is saved locally.",
+  },
+  bn: {
+    "nav.home":"হোম","nav.proxy":"প্রক্সি","nav.settings":"সেটিংস",
+    "home.sub":"AuroraProxy প্রতিবার আপনার অনুরোধ একটি নতুন রোটেটিং এক্সিট নোড দিয়ে পাঠায় — আপনার পরিচয় গোপন রেখে যেকোনো পেজে পৌঁছান।",
+    "stat.active":"সক্রিয় এক্সিট","stat.countries":"দেশ","stat.themes":"থিম","stat.version":"সংস্করণ",
+    "feat.eyebrow":"বৈশিষ্ট্য","feat.title":"গোপনীয়তার জন্য নকশা",
+    "feat.f1.t":"রোটেটিং এক্সিট","feat.f1.d":"প্রতিটি অনুরোধ নতুন স্টিকি এক্সিট সেশন ব্যবহার করে, তাই আপনার পরিচয় ফাঁস হয় না।",
+    "feat.f2.t":"জিও বৈচিত্র্য","feat.f2.d":"ভালো গতি ও পৌঁছানোর জন্য একাধিক অঞ্চলে এক্সিট।",
+    "feat.f3.t":"গভীর থিম","feat.f3.d":"দীর্ঘ সেশনের জন্য পাঁচটি সুন্দর গভীর প্যালেট।",
+    "feat.f4.t":"কোনো কী নেই","feat.f4.d":"কোনো API কী নেই, সাইন-আপ নেই। শুধু URL পেস্ট করুন।",
+    "proxy.eyebrow":"গেটওয়ে","proxy.title":"রোটেটিং এক্সিট দিয়ে ফেচ","proxy.sub":"যেকোনো https URL দিন। AuroraProxy নতুন এক্সিট দিয়ে সেটি খুলবে।",
+    "proxy.url":"টার্গেট URL","proxy.country":"এক্সিট দেশ","proxy.mode":"রেসপন্স মোড",
+    "set.eyebrow":"চেহারা","set.title":"একটি গভীর থিম বাছুন","set.sub":"পাঁচটি হাতে-টিউন করা প্যালেট। আপনার পছন্দ স্থানীয়ভাবে সংরক্ষিত হয়।",
+  }
+};
+
+let LANG = localStorage.getItem("aurora_lang") || "en";
+
+function $(s){ return document.querySelector(s); }
+function $$(s){ return Array.from(document.querySelectorAll(s)); }
+
+function applyLang(){
+  const dict = I18N[LANG] || I18N.en;
+  $$("[data-i18n]").forEach(el => {
+    const k = el.getAttribute("data-i18n");
+    if(dict[k] != null) el.textContent = dict[k];
+  });
+  document.documentElement.lang = LANG;
+}
+
+function setTheme(id){
+  document.documentElement.setAttribute("data-theme", id);
+  localStorage.setItem("aurora_theme", id);
+  renderThemeMenu(); renderThemeGrid();
+}
+
+function renderThemeMenu(){
+  const menu = $("#themeMenu");
+  menu.innerHTML = "";
+  THEMES.forEach(t => {
+    const b = document.createElement("button");
+    b.className = "theme-item" + (document.documentElement.getAttribute("data-theme")===t.id ? " active" : "");
+    b.innerHTML = `<span class="swatch" style="background:linear-gradient(135deg,${t.colors[0]},${t.colors[1]})"></span>${t.name}`;
+    b.onclick = ()=>{ setTheme(t.id); $("#themeWrap").classList.remove("open"); };
+    menu.appendChild(b);
+  });
+}
+
+function renderThemeGrid(){
+  const grid = $("#themeGrid");
+  grid.innerHTML = "";
+  THEMES.forEach(t => {
+    const c = document.createElement("div");
+    c.className = "theme-card" + (document.documentElement.getAttribute("data-theme")===t.id ? " active" : "");
+    c.innerHTML = `<span class="check">✓</span>
+      <div class="swatches">${t.colors.map(col=>`<span style="background:${col}"></span>`).join("")}</div>
+      <div class="tname">${t.name}</div><div class="tdesc">${t.desc}</div>`;
+    c.onclick = ()=> setTheme(t.id);
+    grid.appendChild(c);
+  });
+}
+
+function navigate(page){
+  $$(".page").forEach(p=>p.classList.remove("active"));
+  const target = $("#page-"+page);
+  if(target) target.classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+$$("[data-nav]").forEach(el => {
+  el.addEventListener("click", ()=>{ navigate(el.getAttribute("data-nav")); });
+});
+
+$("#themeBtn").addEventListener("click", (e)=>{ e.stopPropagation(); $("#themeWrap").classList.toggle("open"); });
+document.addEventListener("click", ()=> $("#themeWrap").classList.remove("open"));
+
+async function loadStats(){
+  try{
+    const r = await fetch("proxy.php?action=stats");
+    const j = await r.json();
+    if(j.ok){
+      $("#stat-active").textContent = j.stats.active_sessions || 0;
+      $("#stat-countries").textContent = j.stats.countries || 0;
+    }
+  }catch(_){ /* backend offline — leave dash */ }
+}
+
+$("#px-go").addEventListener("click", async ()=>{
+  const url = $("#px-url").value.trim();
+  const country = $("#px-country").value;
+  const mode = $("#px-mode").value;
+  const result = $("#px-result");
+  const meta = $("#px-meta");
+  if(!/^https?:\/\//i.test(url)){ result.innerHTML = '<span style="color:var(--accent-bad)">Please enter a valid http(s) URL.</span>'; return; }
+  result.innerHTML = '<span class="spinner"></span> Fetching through rotating exit…';
+  result.classList.add("loading");
+  meta.textContent = "";
+  const t0 = performance.now();
+  try{
+    const params = new URLSearchParams({ url, country, mode });
+    const r = await fetch("proxy.php?" + params.toString());
+    const ms = Math.round(performance.now()-t0);
+    result.classList.remove("loading");
+    if(mode === "json"){
+      const j = await r.json();
+      result.innerHTML = `<pre style="white-space:pre-wrap;word-break:break-word">${escapeHtml(JSON.stringify(j,null,2))}</pre>`;
+      meta.textContent = `Exit: ${j.proxy_host||"?"} · Country: ${j.country||"auto"} · ${j.elapsed_ms}ms`;
+    } else {
+      const text = await r.text();
+      const ct = r.headers.get("content-type")||"";
+      if(ct.startsWith("image/")){
+        const blob = await r.blob();
+        const objUrl = URL.createObjectURL(blob);
+        result.innerHTML = `<img src="${objUrl}" style="max-width:100%;max-height:480px;border-radius:8px" />`;
+      } else if(ct.startsWith("text/html")){
+        // show first portion of html
+        result.innerHTML = `<pre style="white-space:pre-wrap;word-break:break-word">${escapeHtml(text.slice(0,6000))}</pre>`;
+      } else {
+        result.innerHTML = `<pre style="white-space:pre-wrap;word-break:break-word">${escapeHtml(text.slice(0,6000))}</pre>`;
+      }
+      meta.textContent = `Status: ${r.status} · ${ms}ms · ${(text.length/1024).toFixed(1)} KB`;
+    }
+  }catch(e){
+    result.classList.remove("loading");
+    result.innerHTML = `<span style="color:var(--accent-bad)">Fetch failed: ${escapeHtml(e.message)}</span>`;
+  }
+});
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+// init
+(function(){
+  setTheme(localStorage.getItem("aurora_theme") || "midnight");
+  applyLang();
+  loadStats();
+})();
+</script>
+</body>
+</html>
