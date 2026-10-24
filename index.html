@@ -4,170 +4,245 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>AuroraProxy — Rotating Exit Proxy</title>
-<meta name="description" content="AuroraProxy — a rotating-exit proxy gateway with multiple deep themes." />
+<meta name="description" content="AuroraProxy — a rotating-exit proxy web app. Single & batch requests, media streaming, and a full API." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
 <style>
-/* ================= Design tokens ================= */
-:root, [data-theme="midnight"]{
+:root,[data-theme="midnight"]{
   --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --display:"Space Grotesk",var(--font);
   --mono:"JetBrains Mono",ui-monospace,monospace;
-  --bg:#0a0f1e; --bg-1:#0e1428; --bg-2:#131a33;
-  --panel:rgba(255,255,255,.03); --panel-solid:#111833; --panel-raised:#182044;
-  --border:rgba(255,255,255,.08); --border-soft:rgba(255,255,255,.05); --border-strong:rgba(255,255,255,.16);
-  --text:#eaf0ff; --text-dim:#a7b1d4; --text-faint:#69749a;
-  --accent:#6c8cff; --accent-hi:#8aa5ff; --accent-glow:rgba(108,140,255,.45);
-  --accent-2:#22d3ee; --accent-ok:#34d399; --accent-warn:#fbbf24; --accent-bad:#fb7185;
+  --bg-0:#0a0f1e;--bg-1:#0e1428;--bg-2:#131a33;
+  --panel:rgba(255,255,255,.03);--panel-solid:#111833;--panel-raised:#182044;
+  --border:rgba(255,255,255,.08);--border-soft:rgba(255,255,255,.05);--border-strong:rgba(255,255,255,.16);
+  --text:#eaf0ff;--text-dim:#a7b1d4;--text-faint:#69749a;
+  --accent:#6c8cff;--accent-hi:#8aa5ff;--accent-glow:rgba(108,140,255,.45);
+  --accent-2:#22d3ee;--accent-ok:#34d399;--accent-warn:#fbbf24;--accent-bad:#fb7185;
   --grad:linear-gradient(135deg,#6c8cff 0%,#8b5cf6 60%,#22d3ee 100%);
   --grad-subtle:linear-gradient(135deg,rgba(108,140,255,.16),rgba(34,211,238,.10));
-  --radius-sm:8px; --radius:13px; --radius-lg:18px; --radius-pill:999px;
+  --radius-sm:8px;--radius:13px;--radius-lg:18px;--radius-pill:999px;
   --shadow-panel:0 18px 46px -18px rgba(0,0,0,.6);
+  --tabbar-h:64px;
 }
-[data-theme="forest"]{ --bg:#0a120c; --bg-1:#0d1610; --bg-2:#122018;
-  --panel-solid:#102018; --panel-raised:#162a20;
-  --border:rgba(255,255,255,.08); --border-soft:rgba(255,255,255,.05); --border-strong:rgba(255,255,255,.16);
-  --text:#e8f5eb; --text-dim:#a8c9b2; --text-faint:#6c8a75;
-  --accent:#22c55e; --accent-hi:#4ade80; --accent-glow:rgba(34,197,94,.45);
-  --accent-2:#14b8a6; --accent-ok:#22c55e; --accent-warn:#f59e0b; --accent-bad:#ef4444;
-  --grad:linear-gradient(135deg,#22c55e 0%,#14b8a6 60%,#84cc16 100%);
-  --grad-subtle:linear-gradient(135deg,rgba(34,197,94,.16),rgba(132,204,22,.10)); }
-[data-theme="amethyst"]{ --bg:#150a1e; --bg-1:#1b0e28; --bg-2:#221233;
-  --panel-solid:#1c1030; --panel-raised:#271640;
-  --text:#f1e9fb; --text-dim:#c8b3e2; --text-faint:#8a72ab;
-  --accent:#a855f7; --accent-hi:#c084fc; --accent-glow:rgba(168,85,247,.45);
-  --accent-2:#ec4899; --accent-ok:#34d399; --accent-warn:#fbbf24; --accent-bad:#fb7185;
-  --grad:linear-gradient(135deg,#a855f7 0%,#ec4899 60%,#f43f5e 100%);
-  --grad-subtle:linear-gradient(135deg,rgba(168,85,247,.18),rgba(236,72,153,.12)); }
-[data-theme="abyss"]{ --bg:#04161f; --bg-1:#061c27; --bg-2:#0a2532;
-  --panel-solid:#0a2532; --panel-raised:#0f3040;
-  --text:#e5f6fb; --text-dim:#a8d4e2; --text-faint:#68919f;
-  --accent:#0ea5e9; --accent-hi:#38bdf8; --accent-glow:rgba(14,165,233,.45);
-  --accent-2:#22d3ee; --accent-ok:#34d399; --accent-warn:#fbbf24; --accent-bad:#fb7185;
-  --grad:linear-gradient(135deg,#0ea5e9 0%,#22d3ee 60%,#34d399 100%);
-  --grad-subtle:linear-gradient(135deg,rgba(14,165,233,.18),rgba(34,211,238,.10)); }
-[data-theme="noir"]{ --bg:#0a0a0a; --bg-1:#101010; --bg-2:#161616;
-  --panel-solid:#161616; --panel-raised:#1e1e1e;
-  --text:#f5f5f5; --text-dim:#b3b3b3; --text-faint:#737373;
-  --accent:#e5e5e5; --accent-hi:#ffffff; --accent-glow:rgba(229,229,229,.3);
-  --accent-2:#a3a3a3; --accent-ok:#4ade80; --accent-warn:#fbbf24; --accent-bad:#f87171;
-  --grad:linear-gradient(135deg,#e5e5e5 0%,#a3a3a3 100%);
-  --grad-subtle:linear-gradient(135deg,rgba(229,229,229,.10),rgba(163,163,163,.06)); }
+[data-theme="forest"]{--bg-0:#0a120c;--bg-1:#0d1610;--bg-2:#122018;--panel-solid:#102018;--panel-raised:#162a20;--border:rgba(255,255,255,.08);--border-soft:rgba(255,255,255,.05);--border-strong:rgba(255,255,255,.16);--text:#e8f5eb;--text-dim:#a8c9b2;--text-faint:#6c8a75;--accent:#22c55e;--accent-hi:#4ade80;--accent-glow:rgba(34,197,94,.45);--accent-2:#14b8a6;--accent-ok:#22c55e;--accent-warn:#f59e0b;--accent-bad:#ef4444;--grad:linear-gradient(135deg,#22c55e 0%,#14b8a6 60%,#84cc16 100%);--grad-subtle:linear-gradient(135deg,rgba(34,197,94,.16),rgba(132,204,22,.10));}
+[data-theme="amethyst"]{--bg-0:#150a1e;--bg-1:#1b0e28;--bg-2:#221233;--panel-solid:#1c1030;--panel-raised:#271640;--text:#f1e9fb;--text-dim:#c8b3e2;--text-faint:#8a72ab;--accent:#a855f7;--accent-hi:#c084fc;--accent-glow:rgba(168,85,247,.45);--accent-2:#ec4899;--accent-ok:#34d399;--accent-warn:#fbbf24;--accent-bad:#fb7185;--grad:linear-gradient(135deg,#a855f7 0%,#ec4899 60%,#f43f5e 100%);--grad-subtle:linear-gradient(135deg,rgba(168,85,247,.18),rgba(236,72,153,.12));}
+[data-theme="abyss"]{--bg-0:#04161f;--bg-1:#061c27;--bg-2:#0a2532;--panel-solid:#0a2532;--panel-raised:#0f3040;--text:#e5f6fb;--text-dim:#a8d4e2;--text-faint:#68919f;--accent:#0ea5e9;--accent-hi:#38bdf8;--accent-glow:rgba(14,165,233,.45);--accent-2:#22d3ee;--accent-ok:#34d399;--accent-warn:#fbbf24;--accent-bad:#fb7185;--grad:linear-gradient(135deg,#0ea5e9 0%,#22d3ee 60%,#34d399 100%);--grad-subtle:linear-gradient(135deg,rgba(14,165,233,.18),rgba(34,211,238,.10));}
+[data-theme="noir"]{--bg-0:#0a0a0a;--bg-1:#101010;--bg-2:#161616;--panel-solid:#161616;--panel-raised:#1e1e1e;--text:#f5f5f5;--text-dim:#b3b3b3;--text-faint:#737373;--accent:#e5e5e5;--accent-hi:#ffffff;--accent-glow:rgba(229,229,229,.3);--accent-2:#a3a3a3;--accent-ok:#4ade80;--accent-warn:#fbbf24;--accent-bad:#f87171;--grad:linear-gradient(135deg,#e5e5e5 0%,#a3a3a3 100%);--grad-subtle:linear-gradient(135deg,rgba(229,229,229,.10),rgba(163,163,163,.06));}
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-body{min-height:100vh;overflow-x:hidden}
+html{font-family:var(--font);background:var(--bg-0);color:var(--text);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;padding-bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 24px);overflow-x:hidden}
 a{color:var(--accent-hi);text-decoration:none}
 ::selection{background:var(--accent-glow)}
-
-/* custom scrollbar */
 *{scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
 *::-webkit-scrollbar{width:9px;height:9px}
 *::-webkit-scrollbar-track{background:transparent}
 *::-webkit-scrollbar-thumb{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:99px}
 
-.container{max-width:1120px;margin:0 auto;padding:0 22px}
+.container{max-width:1080px;margin:0 auto;padding:0 20px}
 
-/* ===== Header ===== */
+/* header */
 .nav{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.4);backdrop-filter:blur(18px);border-bottom:1px solid var(--border-soft)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1120px;margin:0 auto;padding:0 22px}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:18px;color:var(--text);letter-spacing:-.01em}
-.brand .logo{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;color:#fff;font-size:16px;box-shadow:var(--shadow-panel)}
-.nav-actions{display:flex;align-items:center;gap:10px}
-.nav-link{background:none;border:none;color:var(--text-dim);font-size:13.5px;font-weight:500;cursor:pointer;padding:8px 12px;border-radius:var(--radius-sm);transition:all .15s;font-family:var(--font)}
-.nav-link:hover{color:var(--text);background:var(--panel)}
-.theme-btn{width:36px;height:36px;border-radius:var(--radius-sm);background:var(--panel);border:1px solid var(--border);cursor:pointer;color:var(--text-dim);font-size:16px;display:grid;place-items:center;transition:all .15s}
-.theme-btn:hover{border-color:var(--border-strong);color:var(--text)}
-
-/* theme dropdown */
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:60px;max-width:1080px;margin:0 auto;padding:0 20px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:17px;color:var(--text);letter-spacing:-.01em}
+.brand .logo{width:28px;height:28px;border-radius:8px;background:var(--grad);display:grid;place-items:center;color:#fff;font-size:15px;box-shadow:var(--shadow-panel)}
+.brand b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nav-actions{display:flex;align-items:center;gap:8px}
 .theme-wrap{position:relative}
+.theme-btn{width:34px;height:34px;border-radius:var(--radius-sm);background:var(--panel);border:1px solid var(--border);cursor:pointer;color:var(--text-dim);font-size:15px;display:grid;place-items:center;transition:all .15s}
+.theme-btn:hover{border-color:var(--border-strong);color:var(--text)}
 .theme-menu{position:absolute;top:calc(100% + 8px);right:0;background:var(--panel-solid);border:1px solid var(--border);border-radius:var(--radius);padding:6px;min-width:170px;display:none;flex-direction:column;gap:2px;box-shadow:var(--shadow-panel)}
 .theme-wrap.open .theme-menu{display:flex}
-.theme-item{display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text-dim);padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);font-size:13px;text-align:left;transition:all .15s}
+.theme-item{display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text-dim);padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);font-size:13px;text-align:left}
 .theme-item:hover{color:var(--text);background:var(--panel-raised)}
-.theme-item.active{color:var(--text);font-weight:600}
 .theme-item .swatch{width:16px;height:16px;border-radius:50%;flex:0 0 auto;border:1px solid var(--border-strong)}
+.lang-btn{display:flex;align-items:center;gap:5px;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 11px;color:var(--text);font-family:var(--font);font-size:12.5px;cursor:pointer}
+.lang-btn:hover{border-color:var(--border-strong)}
 
-/* ===== Pages ===== */
-.page{display:none}
-.page.active{display:block;animation:fadeIn .25s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+/* pages */
+.page{display:none;animation:fadeIn .22s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
-/* ===== Hero ===== */
-.hero{padding:70px 0 40px;text-align:center;position:relative}
-.hero::before{content:"";position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:min(720px,95vw);height:320px;background:radial-gradient(circle,rgba(108,140,255,.22) 0%,transparent 70%);filter:blur(40px);z-index:-1}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:var(--radius-pill);background:var(--grad-subtle);border:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--accent-hi);margin-bottom:22px}
+/* hero */
+.hero{padding:54px 0 32px;text-align:center;position:relative}
+.hero::before{content:"";position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:min(680px,95vw);height:280px;background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);filter:blur(40px);z-index:-1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:var(--radius-pill);background:var(--grad-subtle);border:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--accent-hi);margin-bottom:18px}
 .dot-pulse{width:7px;height:7px;border-radius:50%;background:var(--accent-ok);box-shadow:0 0 10px var(--accent-ok)}
-.hero h1{font-family:var(--display);font-size:clamp(34px,5.6vw,58px);font-weight:700;line-height:1.08;letter-spacing:-.03em;margin-bottom:18px}
+.hero h1{font-family:var(--display);font-size:clamp(30px,5.4vw,52px);font-weight:700;line-height:1.08;letter-spacing:-.03em;margin-bottom:14px}
 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.hero-sub{color:var(--text-dim);font-size:clamp(15px,1.8vw,18px);max-width:620px;margin:0 auto 30px;line-height:1.55}
+.hero-sub{color:var(--text-dim);font-size:clamp(14px,1.7vw,17px);max-width:620px;margin:0 auto 26px;line-height:1.55}
 .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 
-/* ===== Buttons ===== */
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .18s}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .18s}
 .btn-primary{background:var(--grad);color:#fff;box-shadow:0 8px 26px -6px var(--accent-glow)}
 .btn-primary:hover{transform:translateY(-1px);filter:brightness(1.06)}
 .btn-ghost{background:var(--panel);border-color:var(--border);color:var(--text)}
 .btn-ghost:hover{border-color:var(--border-strong);color:var(--accent-hi)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
 
-/* ===== Stats ===== */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:30px 0 42px}
-.stat{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center}
-.stat .num{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--accent-hi)}
-.stat .lbl{font-size:12px;color:var(--text-faint);margin-top:5px;text-transform:uppercase;letter-spacing:.06em}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:24px 0 32px}
+.stat{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.stat .num{font-family:var(--mono);font-size:25px;font-weight:700;color:var(--accent-hi)}
+.stat .lbl{font-size:11.5px;color:var(--text-faint);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
 
-/* ===== Sections ===== */
-.section{padding:32px 0}
-.section-head{margin-bottom:24px}
-.eyebrow{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent-hi);letter-spacing:.16em;text-transform:uppercase;margin-bottom:8px}
-.section-head h2{font-family:var(--display);font-size:clamp(24px,3.4vw,32px);letter-spacing:-.02em;margin-bottom:8px;font-weight:700}
-.section-head p{color:var(--text-dim);font-size:15px}
+/* sections */
+.section{padding:28px 0}
+.section-head{margin-bottom:20px}
+.eyebrow{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--accent-hi);letter-spacing:.14em;text-transform:uppercase;margin-bottom:7px}
+.section-head h2{font-family:var(--display);font-size:clamp(22px,3.3vw,30px);letter-spacing:-.02em;font-weight:700;margin-bottom:7px}
+.section-head p{color:var(--text-dim);font-size:14px}
 
-/* ===== Proxy box ===== */
-.proxy-box{border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--panel);overflow:hidden;box-shadow:var(--shadow-panel)}
-.proxy-bar{display:flex;align-items:center;gap:8px;padding:14px 18px;border-bottom:1px solid var(--border-soft)}
-.p-dot{width:11px;height:11px;border-radius:50%}
-.p-dot.r{background:#ff5f57}.p-dot.y{background:#febc2e}.p-dot.g{background:#28c840}
-.proxy-title{margin-left:8px;font-family:var(--mono);font-size:12.5px;color:var(--text-faint)}
-.proxy-body{padding:22px}
-.field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
-.field label{font-size:11.5px;color:var(--text-faint);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
-.field input,.field select{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;color:var(--text);font-family:var(--mono);font-size:14px;outline:none;transition:border-color .15s}
-.field input:focus,.field select:focus{border-color:var(--accent)}
-.row{display:flex;gap:12px;flex-wrap:wrap}
-.row .field{flex:1;min-width:140px}
-.result{background:var(--bg-0);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:16px;min-height:70px;overflow-x:auto;word-break:break-word}
-.result.loading{color:var(--text-faint);display:flex;align-items:center;gap:10px}
-.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex:0 0 auto}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.feature{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.feature .ico{font-size:25px;margin-bottom:10px;display:inline-block}
+.feature h3{font-size:15px;font-weight:700;margin-bottom:6px}
+.feature p{font-size:13px;color:var(--text-dim);line-height:1.5}
+
+/* tester box */
+.tester{border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--panel);overflow:hidden;box-shadow:var(--shadow-panel)}
+.tester-bar{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--border-soft);background:var(--panel-solid)}
+.t-dot{width:11px;height:11px;border-radius:50%}
+.t-dot.r{background:#ff5f57}.t-dot.y{background:#febc2e}.t-dot.g{background:#28c840}
+.tester-title{margin-left:8px;font-family:var(--mono);font-size:12.5px;color:var(--text-faint)}
+.tester-body{padding:18px}
+
+.field-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:13px}
+.field{flex:1;min-width:140px;display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;color:var(--text-faint);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select,.field textarea{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:13.5px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.field textarea{min-height:70px;resize:vertical}
+
+.method-seg{display:flex;gap:6px;flex-wrap:wrap}
+.method{flex:1;padding:8px 6px;text-align:center;font-family:var(--mono);font-size:12px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-dim);cursor:pointer}
+.method.active{background:var(--grad);color:#fff;border-color:transparent;font-weight:700}
+
+.spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* feature cards */
-.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
-.feature{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;transition:transform .2s,border-color .2s}
-.feature:hover{transform:translateY(-3px);border-color:var(--border-strong)}
-.feature .ico{font-size:28px;margin-bottom:12px;display:inline-block}
-.feature h3{font-size:16px;font-weight:700;margin-bottom:7px}
-.feature p{font-size:13.5px;color:var(--text-dim);line-height:1.5}
+.err-card{border:1px solid var(--accent-bad);background:rgba(251,113,133,.08);border-radius:var(--radius);padding:13px 15px;margin-top:12px}
+.err-title{font-size:13.5px;font-weight:700;color:var(--accent-bad)}
+.err-msg{color:var(--text-dim);font-size:13px;margin:5px 0}
+.err-sug{font-size:12px;color:var(--accent-warn);font-family:var(--mono)}
 
-/* theme grid (settings) */
-.theme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.theme-card{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;cursor:pointer;transition:all .18s;position:relative}
+.response{background:var(--bg-0);border:1px solid var(--border);border-radius:var(--radius);padding:15px;margin-top:13px;font-family:var(--mono);font-size:13px;min-height:70px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--text-dim)}
+.status-tag{display:inline-block;padding:3px 10px;border-radius:var(--radius-pill);font-size:11px;font-weight:700;margin-bottom:9px;font-family:var(--mono)}
+.status-2xx{background:rgba(52,211,153,.15);color:var(--accent-ok)}
+.status-4xx,.status-5xx{background:rgba(251,113,133,.15);color:var(--accent-bad)}
+.status-idle{background:var(--panel);color:var(--text-faint)}
+
+/* media preview */
+.media-preview{display:block;max-width:100%;max-height:520px;width:auto;height:auto;object-fit:contain;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-0)}
+audio.media-preview{width:100%;max-height:none;border:none;background:transparent}
+
+/* gallery */
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:13px}
+.gal-item{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius);padding:10px;display:flex;flex-direction:column;gap:8px}
+.gal-media{position:relative;width:100%;aspect-ratio:16/10;background:var(--bg-0);border-radius:var(--radius-sm);overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-soft)}
+.gal-media img{width:100%;height:100%;object-fit:contain;display:block}
+.gal-media video,.gal-media audio{width:100%;max-height:100%}
+.gal-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-faint);z-index:1}
+.gal-loaded .gal-placeholder{display:none}
+.shimmer{position:relative;overflow:hidden;background:var(--bg-2)}
+.shimmer::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);animation:shimmer 1.4s infinite}
+@keyframes shimmer{100%{transform:translateX(100%)}}
+.gal-meta{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);display:flex;justify-content:space-between;align-items:center;gap:6px}
+.gal-type{color:var(--accent-hi);text-transform:uppercase;letter-spacing:.04em}
+.gal-actions{display:flex;gap:6px}
+.mini-btn{padding:5px 10px;border-radius:var(--radius-sm);background:var(--panel);border:1px solid var(--border);color:var(--text-dim);font-size:11px;cursor:pointer;font-family:var(--font);text-decoration:none}
+.mini-btn:hover{border-color:var(--border-strong);color:var(--text)}
+
+/* batch */
+.batch-results{display:flex;flex-direction:column;gap:6px;margin-top:12px;max-height:340px;overflow-y:auto}
+.batch-row{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;padding:7px 10px;border-radius:var(--radius-sm);background:var(--panel);border:1px solid var(--border-soft)}
+.batch-row .b-status{font-weight:700}
+.batch-row .b-status.ok{color:var(--accent-ok)}
+.batch-row .b-status.bad{color:var(--accent-bad)}
+.batch-row .b-url{flex:1;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.progress{height:8px;background:var(--bg-2);border-radius:99px;overflow:hidden;margin:13px 0;border:1px solid var(--border)}
+.progress-fill{height:100%;background:var(--grad);width:0%;transition:width .2s ease}
+
+/* tables (docs) */
+.tbl-scroll{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.tbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.tbl th,.tbl td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border-soft);word-break:break-word;vertical-align:top}
+.tbl th{font-family:var(--mono);font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.tbl td{color:var(--text-dim);min-width:0}
+.tbl code,.tbl .mn{font-family:var(--mono);color:var(--accent-hi);font-size:12px;word-break:break-word}
+.tbl tr:hover td{background:rgba(255,255,255,.03)}
+
+/* code blocks */
+.code{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:12px 0}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border-soft);font-family:var(--mono);font-size:12px;color:var(--text-faint)}
+.copy-btn{background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:var(--radius-sm);padding:3px 10px;font-size:11px;cursor:pointer;font-family:var(--mono)}
+.copy-btn:hover{border-color:var(--border-strong);color:var(--text)}
+.code pre{padding:14px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:var(--text-dim)}
+.code code{font-family:var(--mono)}
+
+/* cards / settings */
+.card{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.card h3{font-size:15px;font-weight:700;margin-bottom:10px}
+.card p{font-size:13px;color:var(--text-dim);margin-bottom:12px;line-height:1.5}
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.theme-card{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;cursor:pointer;position:relative;transition:all .18s}
 .theme-card:hover{border-color:var(--border-strong)}
 .theme-card.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.theme-card .swatches{display:flex;gap:6px;margin-bottom:12px}
-.theme-card .swatches span{width:22px;height:22px;border-radius:7px;border:1px solid var(--border-strong)}
+.theme-card .swatches{display:flex;gap:6px;margin-bottom:11px}
+.theme-card .swatches span{width:20px;height:20px;border-radius:6px;border:1px solid var(--border-strong)}
 .theme-card .tname{font-weight:600;font-size:14px}
-.theme-card .tdesc{font-size:11.5px;color:var(--text-faint);margin-top:3px}
-.theme-card .check{position:absolute;top:12px;right:12px;color:var(--accent-hi);font-weight:700;opacity:0}
+.theme-card .tdesc{font-size:11px;color:var(--text-faint);margin-top:3px}
+.theme-card .check{position:absolute;top:11px;right:11px;color:var(--accent-hi);font-weight:700;opacity:0}
 .theme-card.active .check{opacity:1}
+.list{display:flex;flex-direction:column;gap:10px}
+.list-empty{color:var(--text-faint);font-size:13px;text-align:center;padding:26px;border:1px dashed var(--border);border-radius:var(--radius)}
+.hist-item{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius);padding:13px;font-size:13px}
+.hist-meta{display:flex;flex-wrap:wrap;gap:7px 13px;font-family:var(--mono);font-size:11.5px;color:var(--text-faint);margin-bottom:6px;align-items:center}
+.hist-meta .ok{color:var(--accent-ok);font-weight:700}
+.hist-meta .bad{color:var(--accent-bad);font-weight:700}
+.hist-url{font-family:var(--mono);font-size:12.5px;color:var(--text);word-break:break-all;margin-bottom:8px}
+
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft)}
+.setting-row:last-child{border-bottom:none}
+.setting-row .s-label{font-size:13px;color:var(--text)}
+.setting-row .s-sub{font-size:11px;color:var(--text-faint)}
+.toggle{position:relative;width:44px;height:24px;flex:0 0 auto;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.toggle .slider{position:absolute;inset:0;background:var(--border);border-radius:99px;transition:all .2s}
+.toggle .slider::before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:all .2s}
+.toggle input:checked + .slider{background:var(--grad)}
+.toggle input:checked + .slider::before{transform:translateX(20px)}
+.input{width:100%;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .15s}
+.input:focus{border-color:var(--accent)}
+
+/* toast */
+.toast{position:fixed;bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 16px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel-solid);border:1px solid var(--border-strong);color:var(--text);padding:10px 18px;border-radius:var(--radius-pill);font-size:13.5px;box-shadow:var(--shadow-panel);opacity:0;transition:all .22s;z-index:100;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast-ok{border-color:rgba(52,211,153,.5);color:#c7f5e4}
+.toast-bad{border-color:rgba(251,113,133,.55);color:#ffd7d7}
+.toast-warn{border-color:rgba(251,191,36,.55);color:#ffe8c0}
 
 /* footer */
-.footer{border-top:1px solid var(--border-soft);margin-top:40px;padding:28px 0;text-align:center;color:var(--text-faint);font-size:13px}
+.footer{padding:28px 0 14px;text-align:center;color:var(--text-faint);font-size:12.5px;border-top:1px solid var(--border-soft);margin-top:32px}
+
+/* tabbar */
+.tabbar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--tabbar-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(8,10,20,.85);backdrop-filter:blur(20px);border-top:1px solid var(--border-soft);display:flex;justify-content:space-around;align-items:center;z-index:45}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;color:var(--text-faint);cursor:pointer;padding:6px 2px;transition:all .15s;position:relative}
+.tab:hover{color:var(--text-dim)}
+.tab.active{color:var(--accent-hi)}
+.t-ico{width:20px;height:20px}
+.t-label{font-size:10.5px;font-family:var(--font);font-weight:600}
+.tab .t-dot{position:absolute;top:6px;width:4px;height:4px;border-radius:50%;background:var(--accent-hi);opacity:0}
+.tab.active .t-dot{opacity:1}
 
 @media (max-width:600px){
   .container{padding:0 14px}
-  .hero{padding:50px 0 30px}
-  .row{flex-direction:column}
+  .field-row{flex-direction:column}
+  .gallery-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+  .t-label{font-size:9.5px}
+  .tbl{font-size:12px}
+  .tbl th,.tbl td{padding:8px 9px}
 }
 </style>
 </head>
@@ -175,11 +250,9 @@ a{color:var(--accent-hi);text-decoration:none}
 
 <header class="nav">
   <div class="nav-inner">
-    <a class="brand" href="#" data-nav="home"><span class="logo">✦</span><span>Aurora<b style="background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">Proxy</b></span></a>
+    <a class="brand" href="#" data-nav="home"><span class="logo">✦</span><span>Aurora<b>Proxy</b></span></a>
     <div class="nav-actions">
-      <button class="nav-link" data-nav="home" data-i18n="nav.home">Home</button>
-      <button class="nav-link" data-nav="proxy" data-i18n="nav.proxy">Proxy</button>
-      <button class="nav-link" data-nav="settings" data-i18n="nav.settings">Settings</button>
+      <button class="lang-btn" id="langBtn">🌐 <span id="langLabel">EN</span></button>
       <div class="theme-wrap" id="themeWrap">
         <button class="theme-btn" id="themeBtn" aria-label="Theme">🎨</button>
         <div class="theme-menu" id="themeMenu"></div>
@@ -191,83 +264,239 @@ a{color:var(--accent-hi);text-decoration:none}
 <!-- HOME -->
 <main class="page active" id="page-home">
   <section class="hero">
-    <span class="hero-badge"><span class="dot-pulse"></span> Rotating exit network · online</span>
-    <h1>Browse the web through<br><span class="grad">rotating exits.</span></h1>
-    <p class="hero-sub" data-i18n="home.sub">AuroraProxy routes your request through a fresh rotating exit node each time — keep your origin private while reaching any page.</p>
-    <div class="hero-actions">
-      <button class="btn btn-primary" data-nav="proxy">🚀 Open a URL</button>
-      <button class="btn btn-ghost" data-nav="settings">🎨 Choose theme</button>
-    </div>
-    <div class="stats">
-      <div class="stat"><div class="num" id="stat-active">–</div><div class="lbl" data-i18n="stat.active">Active exits</div></div>
-      <div class="stat"><div class="num" id="stat-countries">–</div><div class="lbl" data-i18n="stat.countries">Countries</div></div>
-      <div class="stat"><div class="num">5</div><div class="lbl" data-i18n="stat.themes">Themes</div></div>
-      <div class="stat"><div class="num">1.0.0</div><div class="lbl" data-i18n="stat.version">Version</div></div>
+    <div class="container">
+      <span class="hero-badge"><span class="dot-pulse"></span><span data-i18n="hero.badge">Rotating exits online</span></span>
+      <h1><span data-i18n="hero.t1">Browse the web through</span><br><span class="grad" data-i18n="hero.t2">rotating exits.</span></h1>
+      <p class="hero-sub" data-i18n="hero.sub">AuroraProxy routes each request through a fresh rotating exit node — fetch APIs, stream media, and scrape pages with single or batch requests.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" data-nav="playground" data-i18n="hero.play">Open Playground</button>
+        <button class="btn btn-ghost" data-nav="docs" data-i18n="hero.docs">Read Docs</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="num" id="stat-active">—</div><div class="lbl" data-i18n="stat.active">Active exits</div></div>
+        <div class="stat"><div class="num" id="stat-countries">6</div><div class="lbl" data-i18n="stat.countries">Regions</div></div>
+        <div class="stat"><div class="num">5</div><div class="lbl" data-i18n="stat.themes">Themes</div></div>
+        <div class="stat"><div class="num">1.0.0</div><div class="lbl" data-i18n="stat.version">Version</div></div>
+      </div>
     </div>
   </section>
-
   <section class="section">
     <div class="container">
       <div class="section-head">
         <span class="eyebrow" data-i18n="feat.eyebrow">Features</span>
-        <h2 data-i18n="feat.title">Private by design</h2>
+        <h2 data-i18n="feat.title">A full proxy web app</h2>
       </div>
       <div class="features">
-        <div class="feature"><span class="ico">🔄</span><h3 data-i18n="feat.f1.t">Rotating exits</h3><p data-i18n="feat.f1.d">Each request uses a fresh, sticky exit session so your identity never leaks.</p></div>
-        <div class="feature"><span class="ico">🌍</span><h3 data-i18n="feat.f2.t">Geo diversity</h3><p data-i18n="feat.f2.d">Exits across multiple regions for better reachability and speed.</p></div>
-        <div class="feature"><span class="ico">🎨</span><h3 data-i18n="feat.f3.t">Deep themes</h3><p data-i18n="feat.f3.d">Five beautiful, deep palettes tuned for long sessions.</p></div>
-        <div class="feature"><span class="ico">⚡</span><h3 data-i18n="feat.f4.t">No keys</h3><p data-i18n="feat.f4.d">Zero API keys, zero sign-up. Just paste a URL and go.</p></div>
+        <div class="feature"><span class="ico">🔄</span><h3 data-i18n="feat.f1.t">Rotating exits</h3><p data-i18n="feat.f1.d">Each request binds a fresh sticky exit session so your origin never leaks.</p></div>
+        <div class="feature"><span class="ico">🎬</span><h3 data-i18n="feat.f2.t">Media streaming</h3><p data-i18n="feat.f2.d">Stream video, audio, images, PDFs and downloads with Range support for seeking.</p></div>
+        <div class="feature"><span class="ico">📚</span><h3 data-i18n="feat.f3.t">Single + Batch</h3><p data-i18n="feat.f3.d">Send one request or run a sequential batch with progress and JSON/CSV export.</p></div>
+        <div class="feature"><span class="ico">🧩</span><h3 data-i18n="feat.f4.t">Full API</h3><p data-i18n="feat.f4.d">A NebulaProxy-style REST API: auto/text/json/base64/stream modes.</p></div>
       </div>
     </div>
   </section>
   <footer class="footer">AuroraProxy · rotating-exit gateway · v1.0.0</footer>
 </main>
 
-<!-- PROXY -->
-<main class="page" id="page-proxy">
+<!-- PLAYGROUND -->
+<main class="page" id="page-playground">
   <section class="section">
     <div class="container">
       <div class="section-head">
-        <span class="eyebrow" data-i18n="proxy.eyebrow">Gateway</span>
-        <h2 data-i18n="proxy.title">Fetch through a rotating exit</h2>
-        <p data-i18n="proxy.sub">Enter any https URL. AuroraProxy will reach it through a fresh rotating exit.</p>
+        <span class="eyebrow" data-i18n="pg.eyebrow">Playground</span>
+        <h2 data-i18n="pg.title">Test the proxy live</h2>
+        <p data-i18n="pg.sub">Send a single request and inspect the full response.</p>
       </div>
-      <div class="proxy-box">
-        <div class="proxy-bar"><span class="p-dot r"></span><span class="p-dot y"></span><span class="p-dot g"></span><span class="proxy-title">auroraproxy · fetch</span></div>
-        <div class="proxy-body">
-          <div class="field">
-            <label data-i18n="proxy.url">Target URL</label>
-            <input type="url" id="px-url" placeholder="https://example.com" />
+      <div class="tester">
+        <div class="tester-bar"><span class="t-dot r"></span><span class="t-dot y"></span><span class="t-dot g"></span><span class="tester-title">single request</span></div>
+        <div class="tester-body">
+          <div class="field-row">
+            <div class="field" style="flex:2 1 300px">
+              <label data-i18n="pg.target">Target URL</label>
+              <input type="text" id="pg-url" value="https://api.ipify.org?format=json" placeholder="https://example.com" />
+            </div>
+            <div class="field" style="flex:0 0 auto;min-width:120px">
+              <label data-i18n="pg.method">Method</label>
+              <div class="method-seg" id="pg-method">
+                <button class="method active" data-m="GET">GET</button>
+                <button class="method" data-m="POST">POST</button>
+              </div>
+            </div>
           </div>
-          <div class="row">
-            <div class="field">
-              <label data-i18n="proxy.country">Exit country</label>
-              <select id="px-country" style="font-size:14px;font-family:var(--font)">
+          <div class="field-row">
+            <div class="field"><label data-i18n="pg.mode">Mode</label>
+              <select id="pg-mode">
+                <option value="auto" selected>auto</option>
+                <option value="text">text</option>
+                <option value="json">json</option>
+                <option value="base64">base64</option>
+                <option value="stream">stream</option>
+              </select>
+            </div>
+            <div class="field"><label data-i18n="pg.country">Exit region</label>
+              <select id="pg-country">
                 <option value="">Auto (rotate)</option>
-                <option value="us">🇺🇸 United States</option>
-                <option value="eu">🇪🇺 Europe</option>
-                <option value="sg">🇸🇬 Singapore</option>
-                <option value="jp">🇯🇵 Japan</option>
-                <option value="in">🇮🇳 India</option>
-                <option value="br">🇧🇷 Brazil</option>
+                <option value="us">🇺🇸 US</option><option value="eu">🇪🇺 Europe</option>
+                <option value="sg">🇸🇬 Singapore</option><option value="jp">🇯🇵 Japan</option>
+                <option value="in">🇮🇳 India</option><option value="br">🇧🇷 Brazil</option>
               </select>
             </div>
-            <div class="field">
-              <label data-i18n="proxy.mode">Response mode</label>
-              <select id="px-mode" style="font-size:14px;font-family:var(--font)">
-                <option value="raw">Raw (replay original)</option>
-                <option value="json">JSON (metadata)</option>
-              </select>
+            <div class="field"><label>Timeout (ms)</label>
+              <input type="number" id="pg-timeout" value="30000" min="1000" step="1000" />
             </div>
           </div>
-          <button class="btn btn-primary" id="px-go" style="width:100%;justify-content:center">🚀 Fetch URL</button>
-          <div class="result" id="px-result"><span style="color:var(--text-faint)">Response will appear here.</span></div>
-          <div style="margin-top:12px;font-family:var(--mono);font-size:12px;color:var(--text-faint)" id="px-meta"></div>
+          <div style="display:flex;gap:10px;margin-top:6px">
+            <button class="btn btn-primary" id="pg-send" style="flex:1;justify-content:center">
+              <span id="pg-send-text" data-i18n="pg.send">Send Request</span>
+              <span class="spinner" id="pg-spinner" style="display:none"></span>
+            </button>
+            <button class="btn btn-ghost" id="pg-cancel" style="display:none">Cancel</button>
+          </div>
+          <div id="pg-err-container"></div>
+          <div class="response" id="pg-response">
+            <span class="status-tag status-idle" data-i18n="pg.idle">Ready</span><br>
+            <span data-i18n="pg.hint">Enter a URL and press Send.</span>
+          </div>
+          <div id="pg-preview" style="display:none;margin-top:13px"></div>
+          <div id="pg-download-wrap" style="display:none;margin-top:10px"></div>
+          <div id="pg-meta" style="margin-top:11px;font-family:var(--mono);font-size:12px;color:var(--text-faint)"></div>
+          <div id="pg-gallery" style="margin-top:16px">
+            <div id="pg-gallery-head" style="display:none;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <span style="font-size:13px;font-weight:700" data-i18n="pg.gallery">Generated results</span>
+              <button class="mini-btn" id="pg-gallery-clear">Clear all</button>
+            </div>
+            <div id="pg-gallery-grid"></div>
+          </div>
         </div>
       </div>
     </div>
   </section>
-  <footer class="footer">AuroraProxy · v1.0.0</footer>
+
+  <!-- Batch -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Batch Mode</span>
+        <h2 data-i18n="batch.title">Sequential URL batch</h2>
+        <p data-i18n="batch.sub">Paste multiple URLs (one per line), with repeat and delay.</p>
+      </div>
+      <div class="card">
+        <div class="field"><label data-i18n="batch.urls">URLs (one per line)</label>
+          <textarea class="input" id="batch-urls" rows="5" placeholder="https://api.ipify.org?format=json&#10;https://picsum.photos/300/200&#10;https://httpbin.org/get"></textarea>
+        </div>
+        <div class="field-row" style="margin-top:13px">
+          <div class="field" style="flex:1;min-width:110px"><label>Repeat</label><input class="input" type="number" id="batch-repeat" value="1" min="1" step="1" /></div>
+          <div class="field" style="flex:1;min-width:110px"><label>Delay (ms)</label><input class="input" type="number" id="batch-delay" value="500" min="0" step="50" /></div>
+          <div class="field" style="flex:1;min-width:120px"><label>Mode</label>
+            <select class="input" id="batch-mode">
+              <option value="auto">auto</option><option value="text">text</option>
+              <option value="json">json</option><option value="base64">base64</option><option value="stream">stream</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:13px">
+          <button class="btn btn-primary" id="batch-run">Run Batch</button>
+          <button class="btn btn-ghost" id="batch-cancel" style="display:none">Cancel</button>
+          <button class="btn btn-ghost" id="batch-export-json">Export JSON</button>
+          <button class="btn btn-ghost" id="batch-export-csv">Export CSV</button>
+        </div>
+        <div class="progress" id="batch-progress-wrap" style="display:none"><div class="progress-fill" id="batch-progress-fill"></div></div>
+        <div class="batch-results" id="batch-results"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- DOCS -->
+<main class="page" id="page-docs">
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="docs.eyebrow">Documentation</span>
+        <h2 data-i18n="docs.title">API reference</h2>
+        <p data-i18n="docs.sub">Integrate AuroraProxy into any app.</p>
+      </div>
+      <h3 style="margin:18px 0 8px" data-i18n="docs.endpoints">Endpoints</h3>
+      <div class="card" style="padding:8px 0">
+        <div class="tbl-scroll">
+        <table class="tbl">
+          <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><span class="mn">GET / POST</span></td><td><code>/api/proxy</code></td><td>Proxy a request through a rotating exit</td></tr>
+            <tr><td><span class="mn">GET</span></td><td><code>/api/health</code></td><td>Health check <code>{ status:"ok", version:"1.0.0" }</code></td></tr>
+            <tr><td><span class="mn">GET</span></td><td><code>/api/version</code></td><td>Version + engine metadata</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <h3 style="margin:22px 0 8px" data-i18n="docs.params">Request parameters</h3>
+      <div class="card" style="padding:8px 0">
+        <div class="tbl-scroll">
+        <table class="tbl">
+          <thead><tr><th>Field</th><th>Type</th><th>Req</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>url</code></td><td>string</td><td>yes</td><td>Target URL to fetch</td></tr>
+            <tr><td><code>country</code></td><td>string</td><td>no</td><td>Exit region: us/eu/sg/jp/in/br</td></tr>
+            <tr><td><code>mode</code></td><td>string</td><td>no</td><td><code>auto</code> (default) / <code>text</code> / <code>json</code> / <code>base64</code> / <code>stream</code></td></tr>
+            <tr><td><code>method</code></td><td>string</td><td>no</td><td>HTTP method (default GET)</td></tr>
+            <tr><td><code>timeout</code></td><td>number</td><td>no</td><td>Timeout in ms (default 30000)</td></tr>
+            <tr><td><code>gateway</code></td><td>string</td><td>no</td><td>Set <code>0</code> to bypass rotating exit (direct fetch)</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <h3 style="margin:22px 0 8px" data-i18n="docs.examples">Examples</h3>
+      <div class="code">
+        <div class="code-head"><span>cURL</span><button class="copy-btn" data-copy>Copy</button></div>
+        <pre><code id="code-curl">curl "https://YOUR_HOST/api/proxy?url=https://api.ipify.org?format=json&mode=json"</code></pre>
+      </div>
+      <div class="code">
+        <div class="code-head"><span>Python</span><button class="copy-btn" data-copy>Copy</button></div>
+        <pre><code>import requests
+r = requests.get("https://YOUR_HOST/api/proxy",
+    params={"url":"https://api.ipify.org?format=json","mode":"json"})
+print(r.json())</code></pre>
+      </div>
+      <div class="code">
+        <div class="code-head"><span>Stream video (seek)</span><button class="copy-btn" data-copy>Copy</button></div>
+        <pre><code>curl -H "Range: bytes=0-1023" \
+  "https://YOUR_HOST/api/proxy?url=https://example.com/video.mp4&mode=stream"</code></pre>
+      </div>
+      <h3 style="margin:22px 0 8px" data-i18n="docs.res">Response envelope</h3>
+      <div class="code">
+        <div class="code-head"><span>JSON</span><button class="copy-btn" data-copy>Copy</button></div>
+        <pre><code>{
+  "status": 200,
+  "ok": true,
+  "data": { "ip": "185.16.38.103" },
+  "data_b64": null,
+  "content_type": "application/json",
+  "proxy_host": "185.16.38.103",
+  "country": "us",
+  "elapsed_ms": 420,
+  "size_bytes": 24,
+  "via_proxy": true
+}</code></pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- HISTORY -->
+<main class="page" id="page-history">
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">History</span>
+        <h2 data-i18n="hist.title">Recent requests</h2>
+        <p data-i18n="hist.sub">Saved locally in your browser.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:13px">
+          <button class="btn btn-ghost" id="hist-export">Export JSON</button>
+          <button class="btn btn-ghost" id="hist-clear">Clear History</button>
+        </div>
+      </div>
+      <div class="list" id="hist-list"><div class="list-empty">No requests yet. Try the Playground.</div></div>
+    </div>
+  </section>
 </main>
 
 <!-- SETTINGS -->
@@ -275,17 +504,94 @@ a{color:var(--accent-hi);text-decoration:none}
   <section class="section">
     <div class="container">
       <div class="section-head">
-        <span class="eyebrow" data-i18n="set.eyebrow">Appearance</span>
-        <h2 data-i18n="set.title">Choose a deep theme</h2>
-        <p data-i18n="set.sub">Five hand-tuned palettes. Your choice is saved locally.</p>
+        <span class="eyebrow" data-i18n="set.eyebrow">Settings</span>
+        <h2 data-i18n="set.title">Appearance</h2>
+        <p data-i18n="set.sub">Pick a deep theme — saved locally.</p>
       </div>
       <div class="theme-grid" id="themeGrid"></div>
+      <div class="card" style="margin-top:22px">
+        <h3>⚙️ General</h3>
+        <div class="setting-row">
+          <div><div class="s-label">Auto-save history</div><div class="s-sub">Save requests to the History tab</div></div>
+          <label class="toggle"><input type="checkbox" id="set-autohist" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting-row" style="flex-direction:column;align-items:stretch;gap:6px">
+          <div><div class="s-label">Default timeout (ms)</div></div>
+          <input class="input" type="number" id="set-timeout" value="30000" min="1000" step="1000" />
+        </div>
+        <div class="setting-row" style="flex-direction:column;align-items:stretch;gap:6px">
+          <div><div class="s-label">Batch delay (ms)</div></div>
+          <input class="input" type="number" id="set-batchdelay" value="500" min="0" step="50" />
+        </div>
+      </div>
     </div>
   </section>
   <footer class="footer">AuroraProxy · v1.0.0</footer>
 </main>
 
+<!-- Tabbar -->
+<nav class="tabbar" id="tabbar">
+  <button class="tab active" data-nav="home"><span class="t-dot"></span>
+    <svg class="t-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="t-label" data-i18n="nav.home">Home</span></button>
+  <button class="tab" data-nav="playground"><span class="t-dot"></span>
+    <svg class="t-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+    <span class="t-label" data-i18n="nav.playground">Playground</span></button>
+  <button class="tab" data-nav="docs"><span class="t-dot"></span>
+    <svg class="t-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+    <span class="t-label" data-i18n="nav.docs">Docs</span></button>
+  <button class="tab" data-nav="history"><span class="t-dot"></span>
+    <svg class="t-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+    <span class="t-label">History</span></button>
+  <button class="tab" data-nav="settings"><span class="t-dot"></span>
+    <svg class="t-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span class="t-label" data-i18n="nav.settings">Settings</span></button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
 <script>
+/* ==================== i18n ==================== */
+const I18N = { en: {
+  "hero.badge":"Rotating exits online","hero.t1":"Browse the web through","hero.t2":"rotating exits.",
+  "hero.sub":"AuroraProxy routes each request through a fresh rotating exit node — fetch APIs, stream media, and scrape pages with single or batch requests.",
+  "hero.play":"Open Playground","hero.docs":"Read Docs",
+  "stat.active":"Active exits","stat.countries":"Regions","stat.themes":"Themes","stat.version":"Version",
+  "feat.eyebrow":"Features","feat.title":"A full proxy web app",
+  "feat.f1.t":"Rotating exits","feat.f1.d":"Each request binds a fresh sticky exit session so your origin never leaks.",
+  "feat.f2.t":"Media streaming","feat.f2.d":"Stream video, audio, images, PDFs and downloads with Range support for seeking.",
+  "feat.f3.t":"Single + Batch","feat.f3.d":"Send one request or run a sequential batch with progress and JSON/CSV export.",
+  "feat.f4.t":"Full API","feat.f4.d":"A NebulaProxy-style REST API: auto/text/json/base64/stream modes.",
+  "nav.home":"Home","nav.playground":"Playground","nav.docs":"Docs","nav.settings":"Settings",
+  "pg.eyebrow":"Playground","pg.title":"Test the proxy live","pg.sub":"Send a single request and inspect the full response.",
+  "pg.target":"Target URL","pg.method":"Method","pg.mode":"Mode","pg.country":"Exit region",
+  "pg.send":"Send Request","pg.gallery":"Generated results","pg.idle":"Ready","pg.hint":"Enter a URL and press Send.",
+  "batch.title":"Sequential URL batch","batch.sub":"Paste multiple URLs (one per line), with repeat and delay.","batch.urls":"URLs (one per line)",
+  "docs.eyebrow":"Documentation","docs.title":"API reference","docs.sub":"Integrate AuroraProxy into any app.",
+  "docs.endpoints":"Endpoints","docs.params":"Request parameters","docs.examples":"Examples","docs.res":"Response envelope",
+  "hist.title":"Recent requests","hist.sub":"Saved locally in your browser.",
+  "set.eyebrow":"Settings","set.title":"Appearance","set.sub":"Pick a deep theme — saved locally."
+}, bn: {
+  "hero.badge":"রোটেটিং এক্সিট চালু","hero.t1":"রোটেটিং এক্সিট দিয়ে","hero.t2":"ওয়েব ব্রাউজ করুন।",
+  "hero.sub":"AuroraProxy প্রতিটি অনুরোধ নতুন রোটেটিং এক্সিট নোড দিয়ে পাঠায় — API ফেচ করুন, মিডিয়া স্ট্রিম করুন, সিঙ্গেল বা ব্যাচ অনুরোধে পেজ স্ক্র্যাপ করুন।",
+  "hero.play":"প্লেগ্রাউন্ড খুলুন","hero.docs":"ডকস পড়ুন",
+  "stat.active":"সক্রিয় এক্সিট","stat.countries":"অঞ্চল","stat.themes":"থিম","stat.version":"সংস্করণ",
+  "feat.eyebrow":"বৈশিষ্ট্য","feat.title":"একটি পূর্ণ প্রক্সি ওয়েব অ্যাপ",
+  "feat.f1.t":"রোটেটিং এক্সিট","feat.f1.d":"প্রতিটি অনুরোধ নতুন স্টিকি এক্সিট সেশন বাঁধে, তাই আপনার পরিচয় ফাঁস হয় না।",
+  "feat.f2.t":"মিডিয়া স্ট্রিমিং","feat.f2.d":"ভিডিও, অডিও, ছবি, PDF ও ডাউনলোড Range সাপোর্টসহ স্ট্রিম করুন।",
+  "feat.f3.t":"সিঙ্গেল + ব্যাচ","feat.f3.d":"একটি অনুরোধ পাঠান অথবা প্রগ্রেস ও JSON/CSV এক্সপোর্টসহ ব্যাচ চালান।",
+  "feat.f4.t":"পূর্ণ API","feat.f4.d":"NebulaProxy-স্টাইলের REST API: auto/text/json/base64/stream মোড।",
+  "nav.home":"হোম","nav.playground":"প্লেগ্রাউন্ড","nav.docs":"ডকস","nav.settings":"সেটিংস",
+  "pg.eyebrow":"প্লেগ্রাউন্ড","pg.title":"প্রক্সি লাইভ টেস্ট","pg.sub":"সিঙ্গেল অনুরোধ পাঠিয়ে পূর্ণ রেসপন্স দেখুন।",
+  "pg.target":"টার্গেট URL","pg.method":"মেথড","pg.mode":"মোড","pg.country":"এক্সিট অঞ্চল",
+  "pg.send":"অনুরোধ পাঠান","pg.gallery":"জেনারেটেড ফলাফল","pg.idle":"প্রস্তুত","pg.hint":"URL দিন ও Send চাপুন।",
+  "batch.title":"সিকোয়েন্সিয়াল URL ব্যাচ","batch.sub":"একাধিক URL পেস্ট করুন (প্রতি লাইনে একটি)।","batch.urls":"URL (প্রতি লাইনে একটি)",
+  "docs.eyebrow":"ডকুমেন্টেশন","docs.title":"API রেফারেন্স","docs.sub":"যেকোনো অ্যাপে AuroraProxy যুক্ত করুন।",
+  "docs.endpoints":"এন্ডপয়েন্ট","docs.params":"প্যারামিটার","docs.examples":"উদাহরণ","docs.res":"রেসপন্স এনভেলপ",
+  "hist.title":"সাম্প্রতিক অনুরোধ","hist.sub":"ব্রাউজারে স্থানীয়ভাবে সংরক্ষিত।",
+  "set.eyebrow":"সেটিংস","set.title":"চেহারা","set.sub":"একটি গভীর থিম বাছুন — স্থানীয়ভাবে সংরক্ষিত।"
+}};
+
 const THEMES = [
   { id:"midnight", name:"Midnight Indigo", desc:"Deep indigo + electric blue", colors:["#6c8cff","#8b5cf6","#22d3ee"] },
   { id:"forest",   name:"Deep Forest",      desc:"Dark green + teal",          colors:["#22c55e","#14b8a6","#84cc16"] },
@@ -294,154 +600,176 @@ const THEMES = [
   { id:"noir",     name:"Obsidian Noir",    desc:"Monochrome black",           colors:["#e5e5e5","#a3a3a3","#737373"] },
 ];
 
-const I18N = {
-  en: {
-    "nav.home":"Home","nav.proxy":"Proxy","nav.settings":"Settings",
-    "home.sub":"AuroraProxy routes your request through a fresh rotating exit node each time — keep your origin private while reaching any page.",
-    "stat.active":"Active exits","stat.countries":"Countries","stat.themes":"Themes","stat.version":"Version",
-    "feat.eyebrow":"Features","feat.title":"Private by design",
-    "feat.f1.t":"Rotating exits","feat.f1.d":"Each request uses a fresh, sticky exit session so your identity never leaks.",
-    "feat.f2.t":"Geo diversity","feat.f2.d":"Exits across multiple regions for better reachability and speed.",
-    "feat.f3.t":"Deep themes","feat.f3.d":"Five beautiful, deep palettes tuned for long sessions.",
-    "feat.f4.t":"No keys","feat.f4.d":"Zero API keys, zero sign-up. Just paste a URL and go.",
-    "proxy.eyebrow":"Gateway","proxy.title":"Fetch through a rotating exit","proxy.sub":"Enter any https URL. AuroraProxy will reach it through a fresh rotating exit.",
-    "proxy.url":"Target URL","proxy.country":"Exit country","proxy.mode":"Response mode",
-    "set.eyebrow":"Appearance","set.title":"Choose a deep theme","set.sub":"Five hand-tuned palettes. Your choice is saved locally.",
-  },
-  bn: {
-    "nav.home":"হোম","nav.proxy":"প্রক্সি","nav.settings":"সেটিংস",
-    "home.sub":"AuroraProxy প্রতিবার আপনার অনুরোধ একটি নতুন রোটেটিং এক্সিট নোড দিয়ে পাঠায় — আপনার পরিচয় গোপন রেখে যেকোনো পেজে পৌঁছান।",
-    "stat.active":"সক্রিয় এক্সিট","stat.countries":"দেশ","stat.themes":"থিম","stat.version":"সংস্করণ",
-    "feat.eyebrow":"বৈশিষ্ট্য","feat.title":"গোপনীয়তার জন্য নকশা",
-    "feat.f1.t":"রোটেটিং এক্সিট","feat.f1.d":"প্রতিটি অনুরোধ নতুন স্টিকি এক্সিট সেশন ব্যবহার করে, তাই আপনার পরিচয় ফাঁস হয় না।",
-    "feat.f2.t":"জিও বৈচিত্র্য","feat.f2.d":"ভালো গতি ও পৌঁছানোর জন্য একাধিক অঞ্চলে এক্সিট।",
-    "feat.f3.t":"গভীর থিম","feat.f3.d":"দীর্ঘ সেশনের জন্য পাঁচটি সুন্দর গভীর প্যালেট।",
-    "feat.f4.t":"কোনো কী নেই","feat.f4.d":"কোনো API কী নেই, সাইন-আপ নেই। শুধু URL পেস্ট করুন।",
-    "proxy.eyebrow":"গেটওয়ে","proxy.title":"রোটেটিং এক্সিট দিয়ে ফেচ","proxy.sub":"যেকোনো https URL দিন। AuroraProxy নতুন এক্সিট দিয়ে সেটি খুলবে।",
-    "proxy.url":"টার্গেট URL","proxy.country":"এক্সিট দেশ","proxy.mode":"রেসপন্স মোড",
-    "set.eyebrow":"চেহারা","set.title":"একটি গভীর থিম বাছুন","set.sub":"পাঁচটি হাতে-টিউন করা প্যালেট। আপনার পছন্দ স্থানীয়ভাবে সংরক্ষিত হয়।",
-  }
-};
-
 let LANG = localStorage.getItem("aurora_lang") || "en";
-
-function $(s){ return document.querySelector(s); }
-function $$(s){ return Array.from(document.querySelectorAll(s)); }
+const $ = (s,r)=>(r||document).querySelector(s);
+const $$ = (s,r)=>Array.from((r||document).querySelectorAll(s));
 
 function applyLang(){
-  const dict = I18N[LANG] || I18N.en;
-  $$("[data-i18n]").forEach(el => {
-    const k = el.getAttribute("data-i18n");
-    if(dict[k] != null) el.textContent = dict[k];
-  });
+  const d = I18N[LANG] || I18N.en;
+  $$("[data-i18n]").forEach(el=>{ const k=el.getAttribute("data-i18n"); if(d[k]!=null) el.textContent=d[k]; });
   document.documentElement.lang = LANG;
+  $("#langLabel").textContent = LANG === "bn" ? "বাংলা" : "EN";
 }
-
-function setTheme(id){
-  document.documentElement.setAttribute("data-theme", id);
-  localStorage.setItem("aurora_theme", id);
-  renderThemeMenu(); renderThemeGrid();
-}
-
+function setTheme(id){ document.documentElement.setAttribute("data-theme", id); localStorage.setItem("aurora_theme", id); renderThemeMenu(); renderThemeGrid(); }
 function renderThemeMenu(){
-  const menu = $("#themeMenu");
-  menu.innerHTML = "";
-  THEMES.forEach(t => {
-    const b = document.createElement("button");
-    b.className = "theme-item" + (document.documentElement.getAttribute("data-theme")===t.id ? " active" : "");
-    b.innerHTML = `<span class="swatch" style="background:linear-gradient(135deg,${t.colors[0]},${t.colors[1]})"></span>${t.name}`;
-    b.onclick = ()=>{ setTheme(t.id); $("#themeWrap").classList.remove("open"); };
-    menu.appendChild(b);
-  });
+  const menu = $("#themeMenu"); menu.innerHTML = "";
+  THEMES.forEach(t=>{ const b=document.createElement("button");
+    b.className="theme-item"; b.innerHTML=`<span class="swatch" style="background:linear-gradient(135deg,${t.colors[0]},${t.colors[1]})"></span>${t.name}`;
+    b.onclick=()=>{ setTheme(t.id); $("#themeWrap").classList.remove("open"); }; menu.appendChild(b); });
 }
-
 function renderThemeGrid(){
-  const grid = $("#themeGrid");
-  grid.innerHTML = "";
-  THEMES.forEach(t => {
-    const c = document.createElement("div");
-    c.className = "theme-card" + (document.documentElement.getAttribute("data-theme")===t.id ? " active" : "");
-    c.innerHTML = `<span class="check">✓</span>
-      <div class="swatches">${t.colors.map(col=>`<span style="background:${col}"></span>`).join("")}</div>
-      <div class="tname">${t.name}</div><div class="tdesc">${t.desc}</div>`;
-    c.onclick = ()=> setTheme(t.id);
-    grid.appendChild(c);
-  });
+  const grid = $("#themeGrid"); grid.innerHTML = "";
+  THEMES.forEach(t=>{ const c=document.createElement("div");
+    c.className="theme-card"+(document.documentElement.getAttribute("data-theme")===t.id?" active":"");
+    c.innerHTML=`<span class="check">✓</span><div class="swatches">${t.colors.map(col=>`<span style="background:${col}"></span>`).join("")}</div><div class="tname">${t.name}</div><div class="tdesc">${t.desc}</div>`;
+    c.onclick=()=>setTheme(t.id); grid.appendChild(c); });
 }
-
-function navigate(page){
+function navigate(tab){
   $$(".page").forEach(p=>p.classList.remove("active"));
-  const target = $("#page-"+page);
-  if(target) target.classList.add("active");
+  const pg = $("#page-"+tab); if(pg) pg.classList.add("active");
+  $$(".tab").forEach(t=>t.classList.toggle("active", t.getAttribute("data-nav")===tab));
   window.scrollTo({top:0,behavior:"smooth"});
+  if(tab==="history") renderHistory();
 }
+$$("[data-nav]").forEach(el=>el.addEventListener("click",e=>{ e.preventDefault(); navigate(el.getAttribute("data-nav")); }));
+$("#themeBtn").addEventListener("click",e=>{ e.stopPropagation(); $("#themeWrap").classList.toggle("open"); });
+document.addEventListener("click",()=>$("#themeWrap").classList.remove("open"));
+$("#langBtn").addEventListener("click",()=>{ LANG = LANG==="bn"?"en":"bn"; localStorage.setItem("aurora_lang",LANG); applyLang(); });
 
-$$("[data-nav]").forEach(el => {
-  el.addEventListener("click", ()=>{ navigate(el.getAttribute("data-nav")); });
-});
+/* utilities */
+function fmtBytes(b){ if(!b||b<=0) return "0 B"; const s=["B","KB","MB","GB"]; const i=Math.floor(Math.log(b)/Math.log(1024)); return parseFloat((b/Math.pow(1024,i)).toFixed(2))+" "+s[i]; }
+function fmtLat(ms){ return ms<1000?ms+" ms":(ms/1000).toFixed(2)+" s"; }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+let toastTimer;
+function toast(msg,type){ const t=$("#toast"); t.textContent=msg; t.className="toast show"+(type?" toast-"+type:""); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className="toast",2800); }
 
-$("#themeBtn").addEventListener("click", (e)=>{ e.stopPropagation(); $("#themeWrap").classList.toggle("open"); });
-document.addEventListener("click", ()=> $("#themeWrap").classList.remove("open"));
-
+/* stats */
 async function loadStats(){
-  try{
-    const r = await fetch("proxy.php?action=stats");
-    const j = await r.json();
-    if(j.ok){
-      $("#stat-active").textContent = j.stats.active_sessions || 0;
-      $("#stat-countries").textContent = j.stats.countries || 0;
-    }
-  }catch(_){ /* backend offline — leave dash */ }
+  try{ const r = await fetch("/api/health"); const j = await r.json();
+    $("#stat-active").textContent = j.ok || j.status==="ok" ? "●" : "—";
+  }catch(_){ $("#stat-active").textContent = "—"; }
 }
 
-$("#px-go").addEventListener("click", async ()=>{
-  const url = $("#px-url").value.trim();
-  const country = $("#px-country").value;
-  const mode = $("#px-mode").value;
-  const result = $("#px-result");
-  const meta = $("#px-meta");
-  if(!/^https?:\/\//i.test(url)){ result.innerHTML = '<span style="color:var(--accent-bad)">Please enter a valid http(s) URL.</span>'; return; }
-  result.innerHTML = '<span class="spinner"></span> Fetching through rotating exit…';
-  result.classList.add("loading");
-  meta.textContent = "";
-  const t0 = performance.now();
+/* history */
+function getHistory(){ try{ return JSON.parse(localStorage.getItem("aurora_history")||"[]"); }catch(e){ return []; } }
+function saveHistory(item){ if(localStorage.getItem("aurora_autohist")==="false") return; const l=getHistory(); l.unshift(item); if(l.length>50) l.length=50; localStorage.setItem("aurora_history",JSON.stringify(l)); }
+function renderHistory(){
+  const list=getHistory(); const c=$("#hist-list");
+  if(!list.length){ c.innerHTML='<div class="list-empty">No requests yet.</div>'; return; }
+  c.innerHTML=list.map(it=>{ const ok=it.status>=200&&it.status<300;
+    return `<div class="hist-item"><div class="hist-meta"><span class="${ok?'ok':'bad'}">[${it.method}] ${it.status}</span><span>⏱ ${fmtLat(it.elapsed_ms||0)}</span><span>📦 ${fmtBytes(it.size_bytes||0)}</span><span style="margin-left:auto">${new Date(it.timestamp).toLocaleTimeString()}</span></div><div class="hist-url">${esc(it.url)}</div></div>`;
+  }).join("");
+}
+$("#hist-clear").addEventListener("click",()=>{ localStorage.removeItem("aurora_history"); renderHistory(); toast("History cleared","ok"); });
+$("#hist-export").addEventListener("click",()=>{ const b=new Blob([JSON.stringify(getHistory(),null,2)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=`aurora-history-${Date.now()}.json`; a.click(); });
+
+/* settings */
+$("#set-autohist").addEventListener("change",e=>localStorage.setItem("aurora_autohist", e.target.checked));
+$("#set-timeout").addEventListener("change",e=>localStorage.setItem("aurora_timeout", e.target.value));
+$("#set-batchdelay").addEventListener("change",e=>localStorage.setItem("aurora_batchdelay", e.target.value));
+
+/* ==================== Playground single ==================== */
+let currentMethod = "GET";
+let activeAbort = null;
+$$("#pg-method .method").forEach(m=>m.addEventListener("click",()=>{ $$("#pg-method .method").forEach(x=>x.classList.remove("active")); m.classList.add("active"); currentMethod=m.getAttribute("data-m"); }));
+
+function renderError(code,msg,sug){ $("#pg-err-container").innerHTML=`<div class="err-card"><div class="err-title">⚠️ Error ${code}</div><div class="err-msg">${esc(msg)}</div>${sug?`<div class="err-sug">💡 ${esc(sug)}</div>`:""}</div>`; }
+function clearError(){ $("#pg-err-container").innerHTML=""; }
+
+let galleryCount=0;
+const galleryObserver = (typeof IntersectionObserver!=="undefined") ? new IntersectionObserver((ents,obs)=>{ for(const en of ents){ if(!en.isIntersecting) continue; const it=en.target; const src=it.getAttribute("data-src"); const kind=it.getAttribute("data-kind"); const img=it.querySelector("img"),v=it.querySelector("video"),a=it.querySelector("audio"); if(kind==="image"&&img&&!img.src) img.src=src; else if(kind==="video"&&v&&!v.src) v.src=src; else if(kind==="audio"&&a&&!a.src) a.src=src; it.classList.add("gal-loaded"); obs.unobserve(it); } },{rootMargin:"120px"}) : null;
+
+function appendGalleryItem(blob,ct,url,mediaType,size){ const head=$("#pg-gallery-head"),grid=$("#pg-gallery-grid"); if(!head||!grid) return; head.style.display="flex";
+  const objUrl=URL.createObjectURL(blob); galleryCount++;
+  const label=mediaType==="audio"?"Audio":mediaType==="video"?"Video":mediaType==="pdf"?"PDF":"Image";
+  let inner="";
+  if(mediaType==="image") inner=`<img alt="g${galleryCount}" loading="lazy"/>`;
+  else if(mediaType==="video") inner=`<video controls playsinline preload="none"></video>`;
+  else if(mediaType==="audio") inner=`<audio controls preload="none" style="width:100%"></audio>`;
+  else inner=`<span style="font-size:26px">📄</span>`;
+  const item=document.createElement("div"); item.className="gal-item";
+  item.innerHTML=`<div class="gal-media" data-kind="${mediaType}" data-src="${objUrl}"><div class="gal-placeholder shimmer"><span>${label} · ${fmtBytes(size||blob.size)}</span></div>${inner}</div><div class="gal-meta"><span class="gal-type">${label}</span><span>${fmtBytes(size||blob.size)}</span></div><div class="gal-actions"><a class="mini-btn" href="${objUrl}" download="${uniqueFileName(ct,url)}">⬇ Download</a><a class="mini-btn" href="${objUrl}" target="_blank" rel="noopener">Open</a></div>`;
+  const mediaEl=item.querySelector(".gal-media");
+  if(mediaEl&&galleryObserver) galleryObserver.observe(mediaEl);
+  else if(mediaEl){ const src=mediaEl.getAttribute("data-src"),img=mediaEl.querySelector("img"),v=mediaEl.querySelector("video"),a=mediaEl.querySelector("audio"); if(img)img.src=src; else if(v)v.src=src; else if(a)a.src=src; mediaEl.classList.add("gal-loaded"); }
+  grid.prepend(item);
+}
+function clearGallery(){ const g=$("#pg-gallery-grid"),h=$("#pg-gallery-head"); if(g)g.innerHTML=""; if(h)h.style.display="none"; galleryCount=0; }
+$("#pg-gallery-clear").addEventListener("click",clearGallery);
+
+let fileCounter=0;
+function inferExt(ct,url){ const c=(ct||"").toLowerCase(); const map={"image/jpeg":".jpg","image/png":".png","image/gif":".gif","image/webp":".webp","image/svg+xml":".svg","video/mp4":".mp4","video/webm":".webm","video/quicktime":".mov","audio/mpeg":".mp3","audio/wav":".wav","audio/ogg":".ogg","audio/webm":".weba","application/pdf":".pdf","application/json":".json","application/zip":".zip","text/html":".html","text/plain":".txt"}; if(map[c]) return map[c]; try{ const m=new URL(url).pathname.match(/\.([A-Za-z0-9]{1,5})$/); if(m) return "."+m[1].toLowerCase(); }catch(e){} return ".bin"; }
+function uniqueFileName(ct,url){ fileCounter++; const token=Date.now().toString(36).slice(-6)+(fileCounter%1000).toString(36).padStart(2,"0"); return "ap-"+token+inferExt(ct,url); }
+
+function makeDownload(blob,ct,url){ const w=$("#pg-download-wrap"); w.style.display="block"; const o=URL.createObjectURL(blob); w.innerHTML=`<a class="btn btn-ghost" href="${o}" download="${uniqueFileName(ct,url)}">⬇ Download File</a>`; }
+function renderBinary(blob,ct,url,size){ const c=(ct||"").toLowerCase(); const mediaType=c.startsWith("image/")?"image":c.startsWith("video/")?"video":c.startsWith("audio/")?"audio":c==="application/pdf"?"pdf":"binary"; const preview=$("#pg-preview"),dl=$("#pg-download-wrap");
+  if(mediaType==="image"||mediaType==="video"||mediaType==="audio"){ preview.style.display="block"; const o=URL.createObjectURL(blob); if(mediaType==="image") preview.innerHTML=`<img src="${o}" class="media-preview" loading="lazy"/>`; else if(mediaType==="video") preview.innerHTML=`<video controls class="media-preview" src="${o}" playsinline preload="none"></video>`; else preview.innerHTML=`<audio controls class="media-preview" src="${o}" preload="none"></audio>`; appendGalleryItem(blob,ct,url,mediaType,size); }
+  else if(mediaType==="pdf"){ preview.style.display="block"; preview.innerHTML=`<p style="color:var(--text-dim);margin-bottom:8px">📄 PDF (${fmtBytes(size||blob.size)})</p>`; appendGalleryItem(blob,ct,url,mediaType,size); }
+  else { preview.style.display="block"; preview.innerHTML=`<p style="color:var(--text-dim)">📦 Binary (${fmtBytes(size||blob.size)})</p>`; }
+  makeDownload(blob,ct,url);
+}
+
+$("#pg-send").addEventListener("click",async()=>{
+  const btn=$("#pg-send"),spinner=$("#pg-spinner"),sendText=$("#pg-send-text"),cancelBtn=$("#pg-cancel");
+  const resp=$("#pg-response"),preview=$("#pg-preview"),dl=$("#pg-download-wrap"),meta=$("#pg-meta");
+  clearError(); preview.style.display="none"; preview.innerHTML=""; dl.style.display="none"; dl.innerHTML=""; meta.textContent="";
+  const url=$("#pg-url").value.trim(),mode=$("#pg-mode").value,country=$("#pg-country").value;
+  if(!url){ renderError(400,"Target URL required","Enter a full URL."); return; }
+  const timeout=parseInt($("#pg-timeout").value,10)||30000;
+  btn.disabled=true; spinner.style.display="inline-block"; sendText.textContent="Sending…"; cancelBtn.style.display="inline-flex";
+  activeAbort=new AbortController(); const t0=performance.now();
   try{
-    const params = new URLSearchParams({ url, country, mode });
-    const r = await fetch("proxy.php?" + params.toString());
-    const ms = Math.round(performance.now()-t0);
-    result.classList.remove("loading");
-    if(mode === "json"){
-      const j = await r.json();
-      result.innerHTML = `<pre style="white-space:pre-wrap;word-break:break-word">${escapeHtml(JSON.stringify(j,null,2))}</pre>`;
-      meta.textContent = `Exit: ${j.proxy_host||"?"} · Country: ${j.country||"auto"} · ${j.elapsed_ms}ms`;
-    } else {
-      const text = await r.text();
-      const ct = r.headers.get("content-type")||"";
-      if(ct.startsWith("image/")){
-        const blob = await r.blob();
-        const objUrl = URL.createObjectURL(blob);
-        result.innerHTML = `<img src="${objUrl}" style="max-width:100%;max-height:480px;border-radius:8px" />`;
-      } else if(ct.startsWith("text/html")){
-        // show first portion of html
-        result.innerHTML = `<pre style="white-space:pre-wrap;word-break:break-word">${escapeHtml(text.slice(0,6000))}</pre>`;
-      } else {
-        result.innerHTML = `<pre style="white-space:pre-wrap;word-break:break-word">${escapeHtml(text.slice(0,6000))}</pre>`;
-      }
-      meta.textContent = `Status: ${r.status} · ${ms}ms · ${(text.length/1024).toFixed(1)} KB`;
+    const params=new URLSearchParams({url,mode}); if(country) params.set("country",country); if(timeout) params.set("timeout",timeout);
+    const res=await fetch("/api/proxy?"+params.toString(),{signal:activeAbort.signal});
+    const elapsed=Math.round(performance.now()-t0); const sc=res.status; const isOk=sc>=200&&sc<300; const ct=res.headers.get("content-type")||"";
+    if(mode==="stream"||/^(image|video|audio)\//.test(ct)){ const blob=await res.blob(); resp.innerHTML=`<span class="status-tag ${isOk?'status-2xx':'status-4xx'}">${sc}</span>`; renderBinary(blob,ct,url,blob.size); meta.textContent=`Elapsed: ${elapsed}ms · Size: ${fmtBytes(blob.size)} · ${esc(res.headers.get("x-proxy-node")||"")}`; saveHistory({timestamp:Date.now(),url,method:currentMethod,status:sc,elapsed_ms:elapsed,size_bytes:blob.size}); return; }
+    if(ct.includes("application/json")){ const data=await res.json();
+      if(data.error){ renderError(data.code||sc,data.error,data.suggestion); resp.innerHTML=`<span class="status-tag status-5xx">${sc}</span>`; }
+      else if(data.data_b64){ const bin=atob(data.data_b64); const bytes=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i); const blob=new Blob([bytes],{type:data.content_type||"application/octet-stream"}); resp.innerHTML=`<span class="status-tag ${isOk?'status-2xx':'status-4xx'}">${sc}</span>`; renderBinary(blob,data.content_type||"",url,data.size_bytes); meta.textContent=`Host: ${data.proxy_host||""} · ${data.elapsed_ms||elapsed}ms · ${fmtBytes(data.size_bytes||0)}`; }
+      else{ const body=typeof data.data==="string"?data.data:JSON.stringify(data.data,null,2); resp.innerHTML=`<span class="status-tag ${isOk?'status-2xx':'status-4xx'}">${sc}</span><pre style="margin-top:8px;white-space:pre-wrap;word-break:break-word">${esc(body)}</pre>`; meta.textContent=`Host: ${data.proxy_host||""} · ${data.elapsed_ms||elapsed}ms · ${fmtBytes(data.size_bytes||0)}`; }
+      saveHistory({timestamp:Date.now(),url,method:currentMethod,status:sc,elapsed_ms:elapsed,size_bytes:data.size_bytes||0});
+      return;
     }
-  }catch(e){
-    result.classList.remove("loading");
-    result.innerHTML = `<span style="color:var(--accent-bad)">Fetch failed: ${escapeHtml(e.message)}</span>`;
-  }
+    const text=await res.text(); resp.innerHTML=`<span class="status-tag ${isOk?'status-2xx':'status-4xx'}">${sc}</span><pre style="margin-top:8px;white-space:pre-wrap;word-break:break-word">${esc(text)}</pre>`; meta.textContent=`Elapsed: ${elapsed}ms · Size: ${fmtBytes(text.length)}`; saveHistory({timestamp:Date.now(),url,method:currentMethod,status:sc,elapsed_ms:elapsed,size_bytes:text.length});
+  }catch(e){ const elapsed=Math.round(performance.now()-t0); if(e.name==="AbortError") renderError(499,"Request aborted","Cancelled or timed out."); else renderError(502,e.message||"Failed to fetch","Check network or target URL."); resp.innerHTML=`<span class="status-tag status-5xx">ERR</span>`; }
+  finally{ activeAbort=null; btn.disabled=false; spinner.style.display="none"; sendText.textContent=I18N[LANG]?.["pg.send"]||"Send Request"; cancelBtn.style.display="none"; }
 });
+$("#pg-cancel").addEventListener("click",()=>{ if(activeAbort){ activeAbort.abort(); activeAbort=null; toast("Cancelled","warn"); } });
 
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+/* ==================== Batch ==================== */
+let batchAbort=null,lastBatch=[];
+$("#batch-run").addEventListener("click",async()=>{
+  const base=$("#batch-urls").value.split("\n").map(u=>u.trim()).filter(Boolean);
+  if(!base.length){ toast("Enter at least one URL","warn"); return; }
+  const repeat=Math.max(1,parseInt($("#batch-repeat").value,10)||1);
+  const urls=[]; for(let r=0;r<repeat;r++) for(const u of base) urls.push(u);
+  const delay=parseInt($("#batch-delay").value,10)||500; const mode=$("#batch-mode").value;
+  const runBtn=$("#batch-run"),cancelBtn=$("#batch-cancel"),pw=$("#batch-progress-wrap"),pf=$("#batch-progress-fill"),resDiv=$("#batch-results");
+  runBtn.disabled=true; cancelBtn.style.display="inline-flex"; pw.style.display="block"; pf.style.width="0%"; resDiv.innerHTML=""; lastBatch=[];
+  batchAbort=new AbortController();
+  for(let i=0;i<urls.length;i++){ if(batchAbort.signal.aborted) break; const target=urls[i]; const t0=performance.now(); let status=0,size=0;
+    try{ const res=await fetch("/api/proxy?"+new URLSearchParams({url:target,mode}),{signal:batchAbort.signal}); status=res.status; const buf=await res.arrayBuffer(); size=buf.byteLength; }
+    catch(err){ status=err.name==="AbortError"?499:502; }
+    const elapsed=Math.round(performance.now()-t0); const isOk=status>=200&&status<300; lastBatch.push({url:target,status,elapsed_ms:elapsed,size_bytes:size});
+    const row=document.createElement("div"); row.className="batch-row"; row.innerHTML=`<span class="b-status ${isOk?'ok':'bad'}">${status}</span><span class="b-url" title="${esc(target)}">${esc(target)}</span><span style="color:var(--text-faint)">${elapsed}ms</span><span style="color:var(--text-faint)">${fmtBytes(size)}</span>`; resDiv.appendChild(row);
+    pf.style.width=Math.round(((i+1)/urls.length)*100)+"%";
+    if(i<urls.length-1&&delay>0) await new Promise(r=>setTimeout(r,delay));
+  }
+  runBtn.disabled=false; cancelBtn.style.display="none"; batchAbort=null; toast("Batch finished","ok");
+});
+$("#batch-cancel").addEventListener("click",()=>{ if(batchAbort){ batchAbort.abort(); batchAbort=null; toast("Batch cancelled","warn"); } });
+$("#batch-export-json").addEventListener("click",()=>{ if(!lastBatch.length){ toast("Nothing to export","warn"); return; } const b=new Blob([JSON.stringify(lastBatch,null,2)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=`batch-${Date.now()}.json`; a.click(); });
+$("#batch-export-csv").addEventListener("click",()=>{ if(!lastBatch.length){ toast("Nothing to export","warn"); return; } const hdr="url,status,elapsed_ms,size_bytes\n"; const rows=lastBatch.map(r=>`"${r.url.replace(/"/g,'""')}",${r.status},${r.elapsed_ms},${r.size_bytes}`).join("\n"); const b=new Blob([hdr+rows],{type:"text/csv"}); const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=`batch-${Date.now()}.csv`; a.click(); });
 
-// init
-(function(){
-  setTheme(localStorage.getItem("aurora_theme") || "midnight");
-  applyLang();
-  loadStats();
+/* copy buttons */
+$$("[data-copy]").forEach(b=>b.addEventListener("click",()=>{ const code=b.closest(".code").querySelector("code").innerText; navigator.clipboard.writeText(code).then(()=>{ const o=b.textContent; b.textContent="Copied!"; setTimeout(()=>b.textContent=o,1500); }); }));
+
+/* init */
+(function(){ setTheme(localStorage.getItem("aurora_theme")||"midnight"); applyLang(); loadStats();
+  // restore settings
+  const t=localStorage.getItem("aurora_timeout"); if(t) $("#pg-timeout").value=parseInt(t,10); $("#set-timeout").value=t||"30000";
+  const d=localStorage.getItem("aurora_batchdelay"); $("#set-batchdelay").value=d||"500";
+  $("#set-autohist").checked = localStorage.getItem("aurora_autohist")!=="false";
 })();
 </script>
 </body>
