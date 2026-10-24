@@ -66,7 +66,6 @@ function btoaSafe(str) {
 }
 
 function b64Url(str) {
-  // encode to standard base64 (proxyium expects standard, not url-safe)
   return btoaSafe(unescape(encodeURIComponent(str)));
 }
 
@@ -91,8 +90,6 @@ function utf8ToBase64(str) {
   const bytes = new TextEncoder().encode(str);
   return bytesToBase64(bytes);
 }
-
-// --- response helpers -------------------------------------------------------
 
 function json(obj, status) {
   return new Response(JSON.stringify(obj), {
@@ -131,7 +128,6 @@ function authorized(request, env) {
   return bearer === token || q === token;
 }
 
-// Decode the first shield: base64 -> hex -> JS containing location.href
 function decodeShield(b64) {
   const raw = atobSafe(b64);
   const js = hexDecode(raw);
@@ -140,14 +136,10 @@ function decodeShield(b64) {
   return m[1];
 }
 
-// Parse the raw Set-Cookie header(s) into { name: value } using the first
-// occurrence that has a non-empty (and non-expired) value.
 function parseCookies(setCookieHeader, targetNames) {
   const jar = {};
   if (!setCookieHeader) return jar;
   const names = targetNames || ["__cpc", "__cpcPopShown"];
-  // split into individual cookies (comma can appear in Expires, but for our
-  // controlled cookie names a simple split on newline/; boundaries is enough)
   const parts = setCookieHeader.split(/,(?=\s*[A-Za-z0-9_-]+=)/);
   for (const part of parts) {
     const first = part.split(";")[0];
@@ -156,17 +148,13 @@ function parseCookies(setCookieHeader, targetNames) {
     const name = first.slice(0, eq).trim();
     let value = first.slice(eq + 1).trim();
     if (names.includes(name) && value) {
-      // do not overwrite a captured value with a cleared ("expires 1970") cookie
       if (!jar[name]) jar[name] = value;
     }
   }
   return jar;
 }
 
-// Launch a fresh rotating exit and return { node, cpi, cpc, finalUrl }.
-// The finalUrl is the node URL that returns REAL content when fetched with cpc.
 async function launchExit(target, cc, timeoutMs) {
-  // 1. signup
   const body = new URLSearchParams({
     type: "",
     proxy_country: cc || "",
@@ -191,7 +179,6 @@ async function launchExit(target, cc, timeoutMs) {
   const nodeMatch = cpi.match(/https:\/\/[^/]+/);
   const node = nodeMatch ? nodeMatch[0] : "";
 
-  // 2. GET the __cpi.php shell -> harvest __cpc cookie + data-r
   const r2 = await fetch(cpi, {
     headers: {
       "User-Agent": randomUA(),
@@ -206,7 +193,6 @@ async function launchExit(target, cc, timeoutMs) {
   const cpc = jar.__cpc || "";
   if (!cpc) throw new Error("no __cpc cookie from exit");
 
-  // data-r carries the real content URL (base64). Fall back to building it.
   let finalUrl = "";
   const dm = page2.match(/data-r=["']([^"']+)["']/);
   if (dm) {
@@ -223,7 +209,6 @@ async function launchExit(target, cc, timeoutMs) {
   return { node, cpi, cpc, finalUrl };
 }
 
-// Fetch REAL content through the exit node using the sticky __cpc session.
 async function fetchThroughExit(exit, signal, range) {
   const r = await fetch(exit.finalUrl, {
     method: "GET",
@@ -243,7 +228,6 @@ async function fetchThroughExit(exit, signal, range) {
   return { code: r.status, headers, bytes };
 }
 
-// Buffered fetch (for text/json/base64 modes) with retry on fresh exit.
 async function proxyBuffered(target, cc, env) {
   const timeoutMs = env.PROXY_TIMEOUT ? parseInt(env.PROXY_TIMEOUT, 10) : 30000;
   let lastErr = "";
@@ -276,7 +260,6 @@ async function proxyBuffered(target, cc, env) {
   return { ok: false, err: lastErr || "gateway unreachable" };
 }
 
-// Direct fetch fallback (no rotating exit) — used when gateway=0.
 async function proxyDirect(target, timeoutMs) {
   const t0 = Date.now();
   try {
@@ -355,7 +338,8 @@ async function route(request, env) {
   let params = {};
   for (const k of ["url", "country", "mode", "method", "timeout", "gateway", "headers", "body"]) {
     const v = url.searchParams.get(k);
-    if (v !== null) params[k] = v;
+    const val = v;
+    if (val !== null) params[k] = val;
   }
   if (request.method === "POST" || request.method === "PUT" || request.method === "PATCH") {
     const ct = request.headers.get("Content-Type") || "";
