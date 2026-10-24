@@ -1,33 +1,35 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="midnight">
+<html lang="en" data-theme="abyss">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>AuroraProxy — Rotating Exit Proxy</title>
-<meta name="description" content="AuroraProxy — a rotating-exit proxy web app. Single & batch requests, media streaming, and a full API." />
+<title>AuroraProxy — Rotating Exit Proxy Gateway</title>
+<meta name="description" content="AuroraProxy — a rotating-exit proxy gateway. Fresh egress IP on every request. Single & batch requests, media streaming, live IP, and a full REST API." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='.55' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%2304161f'/%3E%3Cpath d='M10 40c4-8 8-12 14-14s11 2 15 8 8 5 15-2' fill='none' stroke='url(%23a)' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M10 52c5-9 10-12 17-12s11 5 13 14 7 4 14-4' fill='none' stroke='url(%23a)' stroke-width='4' stroke-linecap='round' opacity='.55'/%3E%3Ccircle cx='48' cy='18' r='4' fill='%2322d3ee'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
 <style>
-:root,[data-theme="midnight"]{
+:root,[data-theme="abyss"]{
   --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --display:"Space Grotesk",var(--font);
   --mono:"JetBrains Mono",ui-monospace,monospace;
-  --bg-0:#0a0f1e;--bg-1:#0e1428;--bg-2:#131a33;
-  --panel:rgba(255,255,255,.03);--panel-solid:#111833;--panel-raised:#182044;
-  --border:rgba(255,255,255,.08);--border-soft:rgba(255,255,255,.05);--border-strong:rgba(255,255,255,.16);
-  --text:#eaf0ff;--text-dim:#a7b1d4;--text-faint:#69749a;
-  --accent:#6c8cff;--accent-hi:#8aa5ff;--accent-glow:rgba(108,140,255,.45);
-  --accent-2:#22d3ee;--accent-ok:#34d399;--accent-warn:#fbbf24;--accent-bad:#fb7185;
-  --grad:linear-gradient(135deg,#6c8cff 0%,#8b5cf6 60%,#22d3ee 100%);
-  --grad-subtle:linear-gradient(135deg,rgba(108,140,255,.16),rgba(34,211,238,.10));
+  --bg-0:#04121c;--bg-1:#061a26;--bg-2:#0a2430;
+  --panel:rgba(255,255,255,.03);--panel-solid:#0a2430;--panel-raised:#0e2e3c;
+  --border:rgba(255,255,255,.09);--border-soft:rgba(255,255,255,.05);--border-strong:rgba(255,255,255,.18);
+  --text:#e7f6fc;--text-dim:#a8d4e2;--text-faint:#6493a3;
+  --accent:#0ea5e9;--accent-hi:#38bdf8;--accent-glow:rgba(14,165,233,.5);
+  --accent-2:#22d3ee;--accent-3:#818cf8;--accent-ok:#34d399;--accent-warn:#fbbf24;--accent-bad:#fb7185;
+  --grad:linear-gradient(135deg,#0ea5e9 0%,#818cf8 55%,#22d3ee 100%);
+  --grad-subtle:linear-gradient(135deg,rgba(14,165,233,.18),rgba(34,211,238,.10));
   --radius-sm:8px;--radius:13px;--radius-lg:18px;--radius-pill:999px;
   --shadow-panel:0 18px 46px -18px rgba(0,0,0,.6);
   --tabbar-h:64px;
 }
-[data-theme="forest"]{--bg-0:#0a120c;--bg-1:#0d1610;--bg-2:#122018;--panel-solid:#102018;--panel-raised:#162a20;--border:rgba(255,255,255,.08);--border-soft:rgba(255,255,255,.05);--border-strong:rgba(255,255,255,.16);--text:#e8f5eb;--text-dim:#a8c9b2;--text-faint:#6c8a75;--accent:#22c55e;--accent-hi:#4ade80;--accent-glow:rgba(34,197,94,.45);--accent-2:#14b8a6;--accent-ok:#22c55e;--accent-warn:#f59e0b;--accent-bad:#ef4444;--grad:linear-gradient(135deg,#22c55e 0%,#14b8a6 60%,#84cc16 100%);--grad-subtle:linear-gradient(135deg,rgba(34,197,94,.16),rgba(132,204,22,.10));}
-[data-theme="amethyst"]{--bg-0:#150a1e;--bg-1:#1b0e28;--bg-2:#221233;--panel-solid:#1c1030;--panel-raised:#271640;--text:#f1e9fb;--text-dim:#c8b3e2;--text-faint:#8a72ab;--accent:#a855f7;--accent-hi:#c084fc;--accent-glow:rgba(168,85,247,.45);--accent-2:#ec4899;--accent-ok:#34d399;--accent-warn:#fbbf24;--accent-bad:#fb7185;--grad:linear-gradient(135deg,#a855f7 0%,#ec4899 60%,#f43f5e 100%);--grad-subtle:linear-gradient(135deg,rgba(168,85,247,.18),rgba(236,72,153,.12));}
-[data-theme="abyss"]{--bg-0:#04161f;--bg-1:#061c27;--bg-2:#0a2532;--panel-solid:#0a2532;--panel-raised:#0f3040;--text:#e5f6fb;--text-dim:#a8d4e2;--text-faint:#68919f;--accent:#0ea5e9;--accent-hi:#38bdf8;--accent-glow:rgba(14,165,233,.45);--accent-2:#22d3ee;--accent-ok:#34d399;--accent-warn:#fbbf24;--accent-bad:#fb7185;--grad:linear-gradient(135deg,#0ea5e9 0%,#22d3ee 60%,#34d399 100%);--grad-subtle:linear-gradient(135deg,rgba(14,165,233,.18),rgba(34,211,238,.10));}
-[data-theme="noir"]{--bg-0:#0a0a0a;--bg-1:#101010;--bg-2:#161616;--panel-solid:#161616;--panel-raised:#1e1e1e;--text:#f5f5f5;--text-dim:#b3b3b3;--text-faint:#737373;--accent:#e5e5e5;--accent-hi:#ffffff;--accent-glow:rgba(229,229,229,.3);--accent-2:#a3a3a3;--accent-ok:#4ade80;--accent-warn:#fbbf24;--accent-bad:#f87171;--grad:linear-gradient(135deg,#e5e5e5 0%,#a3a3a3 100%);--grad-subtle:linear-gradient(135deg,rgba(229,229,229,.10),rgba(163,163,163,.06));}
+[data-theme="midnight"]{--bg-0:#0a0f1e;--bg-1:#0e1428;--bg-2:#131a33;--panel-solid:#111833;--panel-raised:#182044;--border:rgba(255,255,255,.08);--border-soft:rgba(255,255,255,.05);--border-strong:rgba(255,255,255,.16);--text:#eaf0ff;--text-dim:#a7b1d4;--text-faint:#69749a;--accent:#6c8cff;--accent-hi:#8aa5ff;--accent-glow:rgba(108,140,255,.45);--accent-2:#22d3ee;--accent-3:#8b5cf6;--accent-ok:#34d399;--accent-warn:#fbbf24;--accent-bad:#fb7185;--grad:linear-gradient(135deg,#6c8cff 0%,#8b5cf6 60%,#22d3ee 100%);--grad-subtle:linear-gradient(135deg,rgba(108,140,255,.16),rgba(34,211,238,.10));}
+[data-theme="forest"]{--bg-0:#0a120c;--bg-1:#0d1610;--bg-2:#122018;--panel-solid:#102018;--panel-raised:#162a20;--border:rgba(255,255,255,.08);--border-soft:rgba(255,255,255,.05);--border-strong:rgba(255,255,255,.16);--text:#e8f5eb;--text-dim:#a8c9b2;--text-faint:#6c8a75;--accent:#22c55e;--accent-hi:#4ade80;--accent-glow:rgba(34,197,94,.45);--accent-2:#14b8a6;--accent-3:#84cc16;--accent-ok:#22c55e;--accent-warn:#f59e0b;--accent-bad:#ef4444;--grad:linear-gradient(135deg,#22c55e 0%,#14b8a6 60%,#84cc16 100%);--grad-subtle:linear-gradient(135deg,rgba(34,197,94,.16),rgba(132,204,22,.10));}
+[data-theme="amethyst"]{--bg-0:#150a1e;--bg-1:#1b0e28;--bg-2:#221233;--panel-solid:#1c1030;--panel-raised:#271640;--text:#f1e9fb;--text-dim:#c8b3e2;--text-faint:#8a72ab;--accent:#a855f7;--accent-hi:#c084fc;--accent-glow:rgba(168,85,247,.45);--accent-2:#ec4899;--accent-3:#f43f5e;--accent-ok:#34d399;--accent-warn:#fbbf24;--accent-bad:#fb7185;--grad:linear-gradient(135deg,#a855f7 0%,#ec4899 60%,#f43f5e 100%);--grad-subtle:linear-gradient(135deg,rgba(168,85,247,.18),rgba(236,72,153,.12));}
+[data-theme="noir"]{--bg-0:#0a0a0a;--bg-1:#101010;--bg-2:#161616;--panel-solid:#161616;--panel-raised:#1e1e1e;--text:#f5f5f5;--text-dim:#b3b3b3;--text-faint:#737373;--accent:#e5e5e5;--accent-hi:#ffffff;--accent-glow:rgba(229,229,229,.3);--accent-2:#a3a3a3;--accent-3:#525252;--accent-ok:#4ade80;--accent-warn:#fbbf24;--accent-bad:#f87171;--grad:linear-gradient(135deg,#e5e5e5 0%,#a3a3a3 100%);--grad-subtle:linear-gradient(135deg,rgba(229,229,229,.10),rgba(163,163,163,.06));}
+[data-theme="aurora"]{--bg-0:#061a16;--bg-1:#08211c;--bg-2:#0c2b24;--panel-solid:#0c2b24;--panel-raised:#123a31;--text:#e7fbf4;--text-dim:#a8dccb;--text-faint:#649f8c;--accent:#14b8a6;--accent-hi:#2dd4bf;--accent-glow:rgba(20,184,166,.5);--accent-2:#34d399;--accent-3:#0ea5e9;--accent-ok:#34d399;--accent-warn:#fbbf24;--accent-bad:#fb7185;--grad:linear-gradient(135deg,#14b8a6 0%,#0ea5e9 55%,#34d399 100%);--grad-subtle:linear-gradient(135deg,rgba(20,184,166,.18),rgba(52,211,153,.12));}
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-family:var(--font);background:var(--bg-0);color:var(--text);-webkit-font-smoothing:antialiased}
@@ -39,55 +41,74 @@ a{color:var(--accent-hi);text-decoration:none}
 *::-webkit-scrollbar-track{background:transparent}
 *::-webkit-scrollbar-thumb{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:99px}
 
-.container{max-width:1080px;margin:0 auto;padding:0 20px}
+/* aurora background animation */
+.aurora-bg{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+.aurora-bg .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;animation:drift 22s ease-in-out infinite}
+.aurora-bg .b1{width:560px;height:560px;left:-120px;top:-120px;background:var(--accent)}
+.aurora-bg .b2{width:520px;height:520px;right:-140px;top:20%;background:var(--accent-3);animation-delay:-7s}
+.aurora-bg .b3{width:480px;height:480px;left:30%;bottom:-180px;background:var(--accent-2);animation-delay:-14s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,40px) scale(1.12)}66%{transform:translate(-40px,30px) scale(.94)}}
+@media (prefers-reduced-motion:reduce){.aurora-bg{display:none}.aurora-bg .blob{animation:none}}
 
-/* header */
-.nav{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.4);backdrop-filter:blur(18px);border-bottom:1px solid var(--border-soft)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;height:60px;max-width:1080px;margin:0 auto;padding:0 20px}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:17px;color:var(--text);letter-spacing:-.01em}
-.brand .logo{width:28px;height:28px;border-radius:8px;background:var(--grad);display:grid;place-items:center;color:#fff;font-size:15px;box-shadow:var(--shadow-panel)}
+.container{max-width:1120px;margin:0 auto;padding:0 20px}
+
+.nav{position:sticky;top:0;z-index:40;background:rgba(0,0,0,.35);backdrop-filter:blur(18px);border-bottom:1px solid var(--border-soft)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:62px;max-width:1120px;margin:0 auto;padding:0 20px}
+.brand{display:flex;align-items:center;gap:11px;font-family:var(--display);font-weight:700;font-size:17px;color:var(--text);letter-spacing:-.01em;cursor:pointer}
+.brand .logo{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;box-shadow:var(--shadow-panel);background:var(--bg-1);border:1px solid var(--border)}
+.brand .logo svg{width:20px;height:20px}
 .brand b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .nav-actions{display:flex;align-items:center;gap:8px}
+.icon-btn{width:36px;height:36px;border-radius:var(--radius-sm);background:var(--panel);border:1px solid var(--border);cursor:pointer;color:var(--text-dim);font-size:16px;display:grid;place-items:center;transition:all .15s;position:relative}
+.icon-btn:hover{border-color:var(--border-strong);color:var(--text)}
 .theme-wrap{position:relative}
-.theme-btn{width:34px;height:34px;border-radius:var(--radius-sm);background:var(--panel);border:1px solid var(--border);cursor:pointer;color:var(--text-dim);font-size:15px;display:grid;place-items:center;transition:all .15s}
-.theme-btn:hover{border-color:var(--border-strong);color:var(--text)}
-.theme-menu{position:absolute;top:calc(100% + 8px);right:0;background:var(--panel-solid);border:1px solid var(--border);border-radius:var(--radius);padding:6px;min-width:170px;display:none;flex-direction:column;gap:2px;box-shadow:var(--shadow-panel)}
+.theme-menu{position:absolute;top:calc(100% + 8px);right:0;background:var(--panel-solid);border:1px solid var(--border);border-radius:var(--radius);padding:6px;min-width:180px;display:none;flex-direction:column;gap:2px;box-shadow:var(--shadow-panel);z-index:60}
 .theme-wrap.open .theme-menu{display:flex}
 .theme-item{display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text-dim);padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);font-size:13px;text-align:left}
 .theme-item:hover{color:var(--text);background:var(--panel-raised)}
 .theme-item .swatch{width:16px;height:16px;border-radius:50%;flex:0 0 auto;border:1px solid var(--border-strong)}
-.lang-btn{display:flex;align-items:center;gap:5px;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 11px;color:var(--text);font-family:var(--font);font-size:12.5px;cursor:pointer}
-.lang-btn:hover{border-color:var(--border-strong)}
+.lang-menu{position:absolute;top:calc(100% + 8px);right:0;background:var(--panel-solid);border:1px solid var(--border);border-radius:var(--radius);padding:6px;min-width:150px;max-height:320px;overflow-y:auto;display:none;flex-direction:column;gap:2px;box-shadow:var(--shadow-panel);z-index:60}
+.lang-wrap.open .lang-menu{display:flex}
+.lang-item{display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text-dim);padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);font-size:13px;text-align:left}
+.lang-item:hover,.lang-item.active{color:var(--text);background:var(--panel-raised)}
+.lang-item.active{color:var(--accent-hi)}
 
-/* pages */
 .page{display:none;animation:fadeIn .22s ease}
 .page.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
-/* hero */
-.hero{padding:54px 0 32px;text-align:center;position:relative}
-.hero::before{content:"";position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:min(680px,95vw);height:280px;background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);filter:blur(40px);z-index:-1}
+.hero{padding:58px 0 34px;text-align:center;position:relative}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:var(--radius-pill);background:var(--grad-subtle);border:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--accent-hi);margin-bottom:18px}
-.dot-pulse{width:7px;height:7px;border-radius:50%;background:var(--accent-ok);box-shadow:0 0 10px var(--accent-ok)}
-.hero h1{font-family:var(--display);font-size:clamp(30px,5.4vw,52px);font-weight:700;line-height:1.08;letter-spacing:-.03em;margin-bottom:14px}
+.dot-pulse{width:8px;height:8px;border-radius:50%;background:var(--accent-ok);box-shadow:0 0 12px var(--accent-ok);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.6}}
+.hero h1{font-family:var(--display);font-size:clamp(32px,5.6vw,56px);font-weight:700;line-height:1.07;letter-spacing:-.03em;margin-bottom:14px}
 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.hero-sub{color:var(--text-dim);font-size:clamp(14px,1.7vw,17px);max-width:620px;margin:0 auto 26px;line-height:1.55}
+.hero-sub{color:var(--text-dim);font-size:clamp(14px,1.7vw,17px);max-width:640px;margin:0 auto 26px;line-height:1.55}
 .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* live IP panel */
+.ip-hero{display:flex;align-items:center;justify-content:center;gap:14px;margin:22px auto 6px;max-width:560px;background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;flex-wrap:wrap}
+.ip-hero .ip-label{font-family:var(--mono);font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em}
+.ip-hero .ip-value{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent-hi);letter-spacing:.02em}
+.ip-hero .ip-meta{font-size:11.5px;color:var(--text-faint)}
+.ip-refresh{display:inline-flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-pill);padding:7px 13px;color:var(--text);font-size:12px;font-family:var(--font);cursor:pointer;transition:all .15s}
+.ip-refresh:hover{border-color:var(--border-strong)}
+.ip-refresh.spinning svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .18s}
 .btn-primary{background:var(--grad);color:#fff;box-shadow:0 8px 26px -6px var(--accent-glow)}
-.btn-primary:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.btn-primary:hover{transform:translateY(-1px);filter:brightness(1.07)}
 .btn-ghost{background:var(--panel);border-color:var(--border);color:var(--text)}
 .btn-ghost:hover{border-color:var(--border-strong);color:var(--accent-hi)}
 .btn:disabled{opacity:.55;cursor:not-allowed}
 
-/* stats */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:24px 0 32px}
-.stat{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:26px 0 34px}
+.stat{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;transition:transform .15s}
+.stat:hover{transform:translateY(-2px)}
 .stat .num{font-family:var(--mono);font-size:25px;font-weight:700;color:var(--accent-hi)}
 .stat .lbl{font-size:11.5px;color:var(--text-faint);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
 
-/* sections */
 .section{padding:28px 0}
 .section-head{margin-bottom:20px}
 .eyebrow{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--accent-hi);letter-spacing:.14em;text-transform:uppercase;margin-bottom:7px}
@@ -95,12 +116,12 @@ a{color:var(--accent-hi);text-decoration:none}
 .section-head p{color:var(--text-dim);font-size:14px}
 
 .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
-.feature{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.feature{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;transition:transform .15s,border-color .15s}
+.feature:hover{transform:translateY(-2px);border-color:var(--border-strong)}
 .feature .ico{font-size:25px;margin-bottom:10px;display:inline-block}
 .feature h3{font-size:15px;font-weight:700;margin-bottom:6px}
 .feature p{font-size:13px;color:var(--text-dim);line-height:1.5}
 
-/* tester box */
 .tester{border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--panel);overflow:hidden;box-shadow:var(--shadow-panel)}
 .tester-bar{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--border-soft);background:var(--panel-solid)}
 .t-dot{width:11px;height:11px;border-radius:50%}
@@ -114,13 +135,13 @@ a{color:var(--accent-hi);text-decoration:none}
 .field input,.field select,.field textarea{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:13.5px;outline:none;transition:border-color .15s;width:100%}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
 .field textarea{min-height:70px;resize:vertical}
+.field select option{background:var(--panel-solid);color:var(--text)}
 
 .method-seg{display:flex;gap:6px;flex-wrap:wrap}
 .method{flex:1;padding:8px 6px;text-align:center;font-family:var(--mono);font-size:12px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-dim);cursor:pointer}
 .method.active{background:var(--grad);color:#fff;border-color:transparent;font-weight:700}
 
 .spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
 
 .err-card{border:1px solid var(--accent-bad);background:rgba(251,113,133,.08);border-radius:var(--radius);padding:13px 15px;margin-top:12px}
 .err-title{font-size:13.5px;font-weight:700;color:var(--accent-bad)}
@@ -133,11 +154,9 @@ a{color:var(--accent-hi);text-decoration:none}
 .status-4xx,.status-5xx{background:rgba(251,113,133,.15);color:var(--accent-bad)}
 .status-idle{background:var(--panel);color:var(--text-faint)}
 
-/* media preview */
 .media-preview{display:block;max-width:100%;max-height:520px;width:auto;height:auto;object-fit:contain;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-0)}
 audio.media-preview{width:100%;max-height:none;border:none;background:transparent}
 
-/* gallery */
 .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:13px}
 .gal-item{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius);padding:10px;display:flex;flex-direction:column;gap:8px}
 .gal-media{position:relative;width:100%;aspect-ratio:16/10;background:var(--bg-0);border-radius:var(--radius-sm);overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-soft)}
@@ -154,17 +173,22 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
 .mini-btn{padding:5px 10px;border-radius:var(--radius-sm);background:var(--panel);border:1px solid var(--border);color:var(--text-dim);font-size:11px;cursor:pointer;font-family:var(--font);text-decoration:none}
 .mini-btn:hover{border-color:var(--border-strong);color:var(--text)}
 
-/* batch */
-.batch-results{display:flex;flex-direction:column;gap:6px;margin-top:12px;max-height:340px;overflow-y:auto}
+.batch-results{display:flex;flex-direction:column;gap:6px;margin-top:12px;max-height:420px;overflow-y:auto}
 .batch-row{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;padding:7px 10px;border-radius:var(--radius-sm);background:var(--panel);border:1px solid var(--border-soft)}
 .batch-row .b-status{font-weight:700}
 .batch-row .b-status.ok{color:var(--accent-ok)}
 .batch-row .b-status.bad{color:var(--accent-bad)}
 .batch-row .b-url{flex:1;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.batch-row.batch-hasmedia{flex-direction:column;align-items:stretch;gap:8px;padding:10px}
+.batch-row .b-head{display:flex;align-items:center;gap:10px;width:100%}
+.batch-row .b-media{width:100%;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg-0);border:1px solid var(--border-soft);display:flex;justify-content:center}
+.batch-row .b-media img{max-width:100%;max-height:220px;object-fit:contain;display:block}
+.batch-row .b-media video{max-width:100%;max-height:220px;display:block}
+.batch-row .b-media audio{width:100%}
+.batch-row .b-kind{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent-hi);background:var(--panel-raised);border:1px solid var(--border);border-radius:var(--radius-sm);padding:2px 7px}
 .progress{height:8px;background:var(--bg-2);border-radius:99px;overflow:hidden;margin:13px 0;border:1px solid var(--border)}
 .progress-fill{height:100%;background:var(--grad);width:0%;transition:width .2s ease}
 
-/* tables (docs) */
 .tbl-scroll{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
 .tbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
 .tbl th,.tbl td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border-soft);word-break:break-word;vertical-align:top}
@@ -173,7 +197,6 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
 .tbl code,.tbl .mn{font-family:var(--mono);color:var(--accent-hi);font-size:12px;word-break:break-word}
 .tbl tr:hover td{background:rgba(255,255,255,.03)}
 
-/* code blocks */
 .code{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:12px 0}
 .code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border-soft);font-family:var(--mono);font-size:12px;color:var(--text-faint)}
 .copy-btn{background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:var(--radius-sm);padding:3px 10px;font-size:11px;cursor:pointer;font-family:var(--mono)}
@@ -181,7 +204,6 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
 .code pre{padding:14px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:var(--text-dim)}
 .code code{font-family:var(--mono)}
 
-/* cards / settings */
 .card{background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
 .card h3{font-size:15px;font-weight:700;margin-bottom:10px}
 .card p{font-size:13px;color:var(--text-dim);margin-bottom:12px;line-height:1.5}
@@ -203,10 +225,10 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
 .hist-meta .bad{color:var(--accent-bad);font-weight:700}
 .hist-url{font-family:var(--mono);font-size:12.5px;color:var(--text);word-break:break-all;margin-bottom:8px}
 
-.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-soft)}
 .setting-row:last-child{border-bottom:none}
 .setting-row .s-label{font-size:13px;color:var(--text)}
-.setting-row .s-sub{font-size:11px;color:var(--text-faint)}
+.setting-row .s-sub{font-size:11px;color:var(--text-faint);margin-top:2px}
 .toggle{position:relative;width:44px;height:24px;flex:0 0 auto;cursor:pointer}
 .toggle input{opacity:0;width:0;height:0}
 .toggle .slider{position:absolute;inset:0;background:var(--border);border-radius:99px;transition:all .2s}
@@ -215,23 +237,22 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
 .toggle input:checked + .slider::before{transform:translateX(20px)}
 .input{width:100%;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .15s}
 .input:focus{border-color:var(--accent)}
+.input option{background:var(--panel-solid);color:var(--text)}
 
-/* toast */
-.toast{position:fixed;bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 16px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel-solid);border:1px solid var(--border-strong);color:var(--text);padding:10px 18px;border-radius:var(--radius-pill);font-size:13.5px;box-shadow:var(--shadow-panel);opacity:0;transition:all .22s;z-index:100;white-space:nowrap}
+.toast{position:fixed;bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 16px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel-solid);border:1px solid var(--border-strong);color:var(--text);padding:10px 18px;border-radius:var(--radius-pill);font-size:13.5px;box-shadow:var(--shadow-panel);opacity:0;transition:all .22s;z-index:100;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast-ok{border-color:rgba(52,211,153,.5);color:#c7f5e4}
 .toast-bad{border-color:rgba(251,113,133,.55);color:#ffd7d7}
 .toast-warn{border-color:rgba(251,191,36,.55);color:#ffe8c0}
 
-/* footer */
 .footer{padding:28px 0 14px;text-align:center;color:var(--text-faint);font-size:12.5px;border-top:1px solid var(--border-soft);margin-top:32px}
+.footer a{color:var(--text-dim)}
 
-/* tabbar */
-.tabbar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--tabbar-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(8,10,20,.85);backdrop-filter:blur(20px);border-top:1px solid var(--border-soft);display:flex;justify-content:space-around;align-items:center;z-index:45}
+.tabbar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--tabbar-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(4,18,28,.85);backdrop-filter:blur(20px);border-top:1px solid var(--border-soft);display:flex;justify-content:space-around;align-items:center;z-index:45}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;color:var(--text-faint);cursor:pointer;padding:6px 2px;transition:all .15s;position:relative}
 .tab:hover{color:var(--text-dim)}
 .tab.active{color:var(--accent-hi)}
-.t-ico{width:20px;height:20px}
+.t-ico{width:21px;height:21px}
 .t-label{font-size:10.5px;font-family:var(--font);font-weight:600}
 .tab .t-dot{position:absolute;top:6px;width:4px;height:4px;border-radius:50%;background:var(--accent-hi);opacity:0}
 .tab.active .t-dot{opacity:1}
@@ -244,17 +265,31 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
   .tbl{font-size:12px}
   .tbl th,.tbl td{padding:8px 9px}
 }
+/* desktop: wider layout + side-by-side sections */
+@media (min-width:900px){
+  .desktop-split{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;align-items:start}
+}
 </style>
 </head>
 <body>
 
+<div class="aurora-bg"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+
 <header class="nav">
   <div class="nav-inner">
-    <a class="brand" href="#" data-nav="home"><span class="logo">✦</span><span>Aurora<b>Proxy</b></span></a>
+    <div class="brand" data-nav="home" role="button" tabindex="0">
+      <span class="logo">
+        <svg viewBox="0 0 64 64" fill="none"><path d="M10 40c4-8 8-12 14-14s11 2 15 8 8 5 15-2" stroke="url(#lg1)" stroke-width="4" stroke-linecap="round"/><path d="M10 52c5-9 10-12 17-12s11 5 13 14 7 4 14-4" stroke="url(#lg1)" stroke-width="4" stroke-linecap="round" opacity=".55"/><circle cx="48" cy="18" r="4" fill="#22d3ee"/><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset=".55" stop-color="#818cf8"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs></svg>
+      </span>
+      <span>Aurora<b>Proxy</b></span>
+    </div>
     <div class="nav-actions">
-      <button class="lang-btn" id="langBtn">🌐 <span id="langLabel">EN</span></button>
+      <div class="lang-wrap" id="langWrap">
+        <button class="icon-btn" id="langBtn" aria-label="Language"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></button>
+        <div class="lang-menu" id="langMenu"></div>
+      </div>
       <div class="theme-wrap" id="themeWrap">
-        <button class="theme-btn" id="themeBtn" aria-label="Theme">🎨</button>
+        <button class="icon-btn" id="themeBtn" aria-label="Theme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg></button>
         <div class="theme-menu" id="themeMenu"></div>
       </div>
     </div>
@@ -265,18 +300,32 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
 <main class="page active" id="page-home">
   <section class="hero">
     <div class="container">
-      <span class="hero-badge"><span class="dot-pulse"></span><span data-i18n="hero.badge">Rotating exits online</span></span>
-      <h1><span data-i18n="hero.t1">Browse the web through</span><br><span class="grad" data-i18n="hero.t2">rotating exits.</span></h1>
-      <p class="hero-sub" data-i18n="hero.sub">AuroraProxy routes each request through a fresh rotating exit node — fetch APIs, stream media, and scrape pages with single or batch requests.</p>
+      <span class="hero-badge"><span class="dot-pulse"></span><span data-i18n="hero.badge">Gateway online</span></span>
+      <h1><span data-i18n="hero.t1">Fresh identity</span><br><span class="grad" data-i18n="hero.t2">on every hop.</span></h1>
+      <p class="hero-sub" data-i18n="hero.sub">AuroraProxy routes each request through a fresh rotating exit node — a new IP, a new session, a new identity. Fetch APIs, stream media, and scrape pages with single or batch requests.</p>
       <div class="hero-actions">
         <button class="btn btn-primary" data-nav="playground" data-i18n="hero.play">Open Playground</button>
         <button class="btn btn-ghost" data-nav="docs" data-i18n="hero.docs">Read Docs</button>
       </div>
+      <div class="ip-hero">
+        <div style="text-align:left">
+          <div class="ip-label" data-i18n="ip.label">Current egress IP</div>
+          <div class="ip-value" id="hero-ip">—</div>
+        </div>
+        <div style="text-align:right">
+          <div class="ip-label" data-i18n="ip.region">Region</div>
+          <div class="ip-meta" id="hero-region" data-i18n="ip.auto">auto</div>
+        </div>
+        <button class="ip-refresh" id="hero-ip-refresh">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          <span data-i18n="ip.refresh">Refresh</span>
+        </button>
+      </div>
       <div class="stats">
-        <div class="stat"><div class="num" id="stat-active">—</div><div class="lbl" data-i18n="stat.active">Active exits</div></div>
+        <div class="stat"><div class="num" id="stat-active">—</div><div class="lbl" data-i18n="stat.active">Gateway</div></div>
         <div class="stat"><div class="num" id="stat-countries">6</div><div class="lbl" data-i18n="stat.countries">Regions</div></div>
-        <div class="stat"><div class="num">5</div><div class="lbl" data-i18n="stat.themes">Themes</div></div>
-        <div class="stat"><div class="num">1.0.0</div><div class="lbl" data-i18n="stat.version">Version</div></div>
+        <div class="stat"><div class="num" id="stat-themes">6</div><div class="lbl" data-i18n="stat.themes">Themes</div></div>
+        <div class="stat"><div class="num" id="stat-langs">8</div><div class="lbl" data-i18n="stat.langs">Languages</div></div>
       </div>
     </div>
   </section>
@@ -284,17 +333,19 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
     <div class="container">
       <div class="section-head">
         <span class="eyebrow" data-i18n="feat.eyebrow">Features</span>
-        <h2 data-i18n="feat.title">A full proxy web app</h2>
+        <h2 data-i18n="feat.title">A full rotating proxy web app</h2>
       </div>
       <div class="features">
-        <div class="feature"><span class="ico">🔄</span><h3 data-i18n="feat.f1.t">Rotating exits</h3><p data-i18n="feat.f1.d">Each request binds a fresh sticky exit session so your origin never leaks.</p></div>
+        <div class="feature"><span class="ico">🔄</span><h3 data-i18n="feat.f1.t">Rotating exits</h3><p data-i18n="feat.f1.d">Each request binds a fresh exit node so your origin never leaks. Watch the IP change on every hop.</p></div>
         <div class="feature"><span class="ico">🎬</span><h3 data-i18n="feat.f2.t">Media streaming</h3><p data-i18n="feat.f2.d">Stream video, audio, images, PDFs and downloads with Range support for seeking.</p></div>
-        <div class="feature"><span class="ico">📚</span><h3 data-i18n="feat.f3.t">Single + Batch</h3><p data-i18n="feat.f3.d">Send one request or run a sequential batch with progress and JSON/CSV export.</p></div>
-        <div class="feature"><span class="ico">🧩</span><h3 data-i18n="feat.f4.t">Full API</h3><p data-i18n="feat.f4.d">A NebulaProxy-style REST API: auto/text/json/base64/stream modes.</p></div>
+        <div class="feature"><span class="ico">📚</span><h3 data-i18n="feat.f3.t">Single + Batch</h3><p data-i18n="feat.f3.d">Send one request or run a sequential batch with inline media preview and JSON/CSV export.</p></div>
+        <div class="feature"><span class="ico">🧩</span><h3 data-i18n="feat.f4.t">Full REST API</h3><p data-i18n="feat.f4.d">auto / text / json / base64 / stream modes plus a live egress-IP endpoint.</p></div>
+        <div class="feature"><span class="ico">🛰️</span><h3 data-i18n="feat.f5.t">Live IP system</h3><p data-i18n="feat.f5.d">Real-time rotating egress IP with refresh, so you always know where you exit.</p></div>
+        <div class="feature"><span class="ico">🎨</span><h3 data-i18n="feat.f6.t">Deep themes</h3><p data-i18n="feat.f6.d">Six hand-tuned dark themes including the signature Ocean Abyss.</p></div>
       </div>
     </div>
   </section>
-  <footer class="footer">AuroraProxy · rotating-exit gateway · v1.0.0</footer>
+  <footer class="footer"><span data-i18n="footer.by">crafted with</span> ♥ · AuroraProxy · <span data-i18n="footer.ver">rotating-exit gateway</span> · v1.0.1</footer>
 </main>
 
 <!-- PLAYGROUND -->
@@ -314,7 +365,7 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
               <label data-i18n="pg.target">Target URL</label>
               <input type="text" id="pg-url" value="https://api.ipify.org?format=json" placeholder="https://example.com" />
             </div>
-            <div class="field" style="flex:0 0 auto;min-width:120px">
+            <div class="field" style="flex:0 0 auto;min-width:150px">
               <label data-i18n="pg.method">Method</label>
               <div class="method-seg" id="pg-method">
                 <button class="method active" data-m="GET">GET</button>
@@ -340,7 +391,7 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
                 <option value="in">🇮🇳 India</option><option value="br">🇧🇷 Brazil</option>
               </select>
             </div>
-            <div class="field"><label>Timeout (ms)</label>
+            <div class="field"><label data-i18n="pg.timeout">Timeout (ms)</label>
               <input type="number" id="pg-timeout" value="30000" min="1000" step="1000" />
             </div>
           </div>
@@ -377,7 +428,7 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
       <div class="section-head">
         <span class="eyebrow">Batch Mode</span>
         <h2 data-i18n="batch.title">Sequential URL batch</h2>
-        <p data-i18n="batch.sub">Paste multiple URLs (one per line), with repeat and delay.</p>
+        <p data-i18n="batch.sub">Paste multiple URLs (one per line), with repeat and delay. Media renders inline.</p>
       </div>
       <div class="card">
         <div class="field"><label data-i18n="batch.urls">URLs (one per line)</label>
@@ -422,7 +473,8 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
           <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
           <tbody>
             <tr><td><span class="mn">GET / POST</span></td><td><code>/api/proxy</code></td><td>Proxy a request through a rotating exit</td></tr>
-            <tr><td><span class="mn">GET</span></td><td><code>/api/health</code></td><td>Health check <code>{ status:"ok", version:"1.0.0" }</code></td></tr>
+            <tr><td><span class="mn">GET</span></td><td><code>/api/proxy/ip</code></td><td>Live egress IP of the current rotating exit</td></tr>
+            <tr><td><span class="mn">GET</span></td><td><code>/api/health</code></td><td>Health check <code>{ status:"ok", version:"1.0.1" }</code></td></tr>
             <tr><td><span class="mn">GET</span></td><td><code>/api/version</code></td><td>Version + engine metadata</td></tr>
           </tbody>
         </table>
@@ -446,8 +498,13 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
       </div>
       <h3 style="margin:22px 0 8px" data-i18n="docs.examples">Examples</h3>
       <div class="code">
-        <div class="code-head"><span>cURL</span><button class="copy-btn" data-copy>Copy</button></div>
+        <div class="code-head"><span>cURL — fetch through a rotating exit</span><button class="copy-btn" data-copy>Copy</button></div>
         <pre><code id="code-curl">curl "https://YOUR_HOST/api/proxy?url=https://api.ipify.org?format=json&mode=json"</code></pre>
+      </div>
+      <div class="code">
+        <div class="code-head"><span>Live egress IP</span><button class="copy-btn" data-copy>Copy</button></div>
+        <pre><code>curl "https://YOUR_HOST/api/proxy/ip"
+# {"ok":true,"proxy_country":"auto","ip":"51.38.132.86",...}</code></pre>
       </div>
       <div class="code">
         <div class="code-head"><span>Python</span><button class="copy-btn" data-copy>Copy</button></div>
@@ -467,13 +524,14 @@ print(r.json())</code></pre>
         <pre><code>{
   "status": 200,
   "ok": true,
-  "data": { "ip": "185.16.38.103" },
+  "data": { "ip": "51.38.130.72" },
   "data_b64": null,
   "content_type": "application/json",
-  "proxy_host": "185.16.38.103",
-  "country": "us",
+  "proxy_host": "https://51.38.130.72",
+  "proxy_ip": "51.38.130.72",
+  "country": "auto",
   "elapsed_ms": 420,
-  "size_bytes": 24,
+  "size_bytes": 20,
   "via_proxy": true
 }</code></pre>
       </div>
@@ -505,28 +563,59 @@ print(r.json())</code></pre>
     <div class="container">
       <div class="section-head">
         <span class="eyebrow" data-i18n="set.eyebrow">Settings</span>
-        <h2 data-i18n="set.title">Appearance</h2>
-        <p data-i18n="set.sub">Pick a deep theme — saved locally.</p>
+        <h2 data-i18n="set.title">Appearance & behaviour</h2>
+        <p data-i18n="set.sub">Pick a theme and tune the proxy — saved locally.</p>
       </div>
       <div class="theme-grid" id="themeGrid"></div>
       <div class="card" style="margin-top:22px">
-        <h3>⚙️ General</h3>
+        <h3>⚙️ <span data-i18n="set.general">General</span></h3>
         <div class="setting-row">
-          <div><div class="s-label">Auto-save history</div><div class="s-sub">Save requests to the History tab</div></div>
+          <div><div class="s-label" data-i18n="set.autohist">Auto-save history</div><div class="s-sub" data-i18n="set.autohist.s">Save requests to the History tab</div></div>
           <label class="toggle"><input type="checkbox" id="set-autohist" checked><span class="slider"></span></label>
         </div>
+        <div class="setting-row">
+          <div><div class="s-label" data-i18n="set.autoip">Auto-refresh IP</div><div class="s-sub" data-i18n="set.autoip.s">Poll the live egress IP every 30s</div></div>
+          <label class="toggle"><input type="checkbox" id="set-autoip" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div><div class="s-label" data-i18n="set.motion">Motion effects</div><div class="s-sub" data-i18n="set.motion.s">Aurora background animation</div></div>
+          <label class="toggle"><input type="checkbox" id="set-motion" checked><span class="slider"></span></label>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>🔌 <span data-i18n="set.proxy">Proxy defaults</span></h3>
         <div class="setting-row" style="flex-direction:column;align-items:stretch;gap:6px">
-          <div><div class="s-label">Default timeout (ms)</div></div>
+          <div><div class="s-label" data-i18n="set.defmode">Default mode</div></div>
+          <select class="input" id="set-defmode">
+            <option value="auto">auto</option><option value="text">text</option>
+            <option value="json">json</option><option value="base64">base64</option><option value="stream">stream</option>
+          </select>
+        </div>
+        <div class="setting-row" style="flex-direction:column;align-items:stretch;gap:6px">
+          <div><div class="s-label" data-i18n="set.defcountry">Default exit region</div></div>
+          <select class="input" id="set-defcountry">
+            <option value="">Auto (rotate)</option>
+            <option value="us">🇺🇸 US</option><option value="eu">🇪🇺 Europe</option>
+            <option value="sg">🇸🇬 Singapore</option><option value="jp">🇯🇵 Japan</option>
+            <option value="in">🇮🇳 India</option><option value="br">🇧🇷 Brazil</option>
+          </select>
+        </div>
+        <div class="setting-row" style="flex-direction:column;align-items:stretch;gap:6px">
+          <div><div class="s-label" data-i18n="set.timeout">Default timeout (ms)</div></div>
           <input class="input" type="number" id="set-timeout" value="30000" min="1000" step="1000" />
         </div>
         <div class="setting-row" style="flex-direction:column;align-items:stretch;gap:6px">
-          <div><div class="s-label">Batch delay (ms)</div></div>
+          <div><div class="s-label" data-i18n="set.batchdelay">Batch delay (ms)</div></div>
           <input class="input" type="number" id="set-batchdelay" value="500" min="0" step="50" />
         </div>
       </div>
+      <div class="card" style="margin-top:16px">
+        <h3>⌨️ <span data-i18n="set.shortcuts">Keyboard shortcuts</span></h3>
+        <p style="font-size:12.5px;color:var(--text-dim)"><span class="mn" style="font-family:var(--mono);color:var(--accent-hi)">1</span> Home · <span class="mn" style="font-family:var(--mono);color:var(--accent-hi)">2</span> Playground · <span class="mn" style="font-family:var(--mono);color:var(--accent-hi)">3</span> Docs · <span class="mn" style="font-family:var(--mono);color:var(--accent-hi)">4</span> History · <span class="mn" style="font-family:var(--mono);color:var(--accent-hi)">5</span> Settings · <span class="mn" style="font-family:var(--mono);color:var(--accent-hi)">Enter</span> Send</p>
+      </div>
     </div>
   </section>
-  <footer class="footer">AuroraProxy · v1.0.0</footer>
+  <footer class="footer">AuroraProxy · v1.0.1</footer>
 </main>
 
 <!-- Tabbar -->
@@ -553,51 +642,249 @@ print(r.json())</code></pre>
 <script>
 /* ==================== i18n ==================== */
 const I18N = { en: {
-  "hero.badge":"Rotating exits online","hero.t1":"Browse the web through","hero.t2":"rotating exits.",
-  "hero.sub":"AuroraProxy routes each request through a fresh rotating exit node — fetch APIs, stream media, and scrape pages with single or batch requests.",
+  "hero.badge":"Gateway online","hero.t1":"Fresh identity","hero.t2":"on every hop.",
+  "hero.sub":"AuroraProxy routes each request through a fresh rotating exit node — a new IP, a new session, a new identity. Fetch APIs, stream media, and scrape pages with single or batch requests.",
   "hero.play":"Open Playground","hero.docs":"Read Docs",
-  "stat.active":"Active exits","stat.countries":"Regions","stat.themes":"Themes","stat.version":"Version",
-  "feat.eyebrow":"Features","feat.title":"A full proxy web app",
-  "feat.f1.t":"Rotating exits","feat.f1.d":"Each request binds a fresh sticky exit session so your origin never leaks.",
+  "ip.label":"Current egress IP","ip.region":"Region","ip.auto":"auto","ip.refresh":"Refresh",
+  "stat.active":"Gateway","stat.countries":"Regions","stat.themes":"Themes","stat.langs":"Languages","stat.version":"Version",
+  "feat.eyebrow":"Features","feat.title":"A full rotating proxy web app",
+  "feat.f1.t":"Rotating exits","feat.f1.d":"Each request binds a fresh exit node so your origin never leaks. Watch the IP change on every hop.",
   "feat.f2.t":"Media streaming","feat.f2.d":"Stream video, audio, images, PDFs and downloads with Range support for seeking.",
-  "feat.f3.t":"Single + Batch","feat.f3.d":"Send one request or run a sequential batch with progress and JSON/CSV export.",
-  "feat.f4.t":"Full API","feat.f4.d":"A NebulaProxy-style REST API: auto/text/json/base64/stream modes.",
+  "feat.f3.t":"Single + Batch","feat.f3.d":"Send one request or run a sequential batch with inline media preview and JSON/CSV export.",
+  "feat.f4.t":"Full REST API","feat.f4.d":"auto / text / json / base64 / stream modes plus a live egress-IP endpoint.",
+  "feat.f5.t":"Live IP system","feat.f5.d":"Real-time rotating egress IP with refresh, so you always know where you exit.",
+  "feat.f6.t":"Deep themes","feat.f6.d":"Six hand-tuned dark themes including the signature Ocean Abyss.",
   "nav.home":"Home","nav.playground":"Playground","nav.docs":"Docs","nav.settings":"Settings",
   "pg.eyebrow":"Playground","pg.title":"Test the proxy live","pg.sub":"Send a single request and inspect the full response.",
-  "pg.target":"Target URL","pg.method":"Method","pg.mode":"Mode","pg.country":"Exit region",
+  "pg.target":"Target URL","pg.method":"Method","pg.mode":"Mode","pg.country":"Exit region","pg.timeout":"Timeout (ms)",
   "pg.send":"Send Request","pg.gallery":"Generated results","pg.idle":"Ready","pg.hint":"Enter a URL and press Send.",
-  "batch.title":"Sequential URL batch","batch.sub":"Paste multiple URLs (one per line), with repeat and delay.","batch.urls":"URLs (one per line)",
+  "batch.title":"Sequential URL batch","batch.sub":"Paste multiple URLs (one per line), with repeat and delay. Media renders inline.","batch.urls":"URLs (one per line)",
   "docs.eyebrow":"Documentation","docs.title":"API reference","docs.sub":"Integrate AuroraProxy into any app.",
   "docs.endpoints":"Endpoints","docs.params":"Request parameters","docs.examples":"Examples","docs.res":"Response envelope",
   "hist.title":"Recent requests","hist.sub":"Saved locally in your browser.",
-  "set.eyebrow":"Settings","set.title":"Appearance","set.sub":"Pick a deep theme — saved locally."
+  "set.eyebrow":"Settings","set.title":"Appearance & behaviour","set.sub":"Pick a theme and tune the proxy — saved locally.",
+  "set.general":"General","set.autohist":"Auto-save history","set.autohist.s":"Save requests to the History tab",
+  "set.autoip":"Auto-refresh IP","set.autoip.s":"Poll the live egress IP every 30s",
+  "set.motion":"Motion effects","set.motion.s":"Aurora background animation",
+  "set.proxy":"Proxy defaults","set.defmode":"Default mode","set.defcountry":"Default exit region","set.timeout":"Default timeout (ms)","set.batchdelay":"Batch delay (ms)",
+  "set.shortcuts":"Keyboard shortcuts",
+  "footer.by":"crafted with","footer.ver":"rotating-exit gateway"
 }, bn: {
-  "hero.badge":"রোটেটিং এক্সিট চালু","hero.t1":"রোটেটিং এক্সিট দিয়ে","hero.t2":"ওয়েব ব্রাউজ করুন।",
-  "hero.sub":"AuroraProxy প্রতিটি অনুরোধ নতুন রোটেটিং এক্সিট নোড দিয়ে পাঠায় — API ফেচ করুন, মিডিয়া স্ট্রিম করুন, সিঙ্গেল বা ব্যাচ অনুরোধে পেজ স্ক্র্যাপ করুন।",
+  "hero.badge":"গেটওয়ে চালু","hero.t1":"প্রতিটি হপে","hero.t2":"নতুন পরিচয়।",
+  "hero.sub":"AuroraProxy প্রতিটি অনুরোধ নতুন রোটেটিং এক্সিট নোড দিয়ে পাঠায় — নতুন IP, নতুন সেশন, নতুন পরিচয়। API ফেচ করুন, মিডিয়া স্ট্রিম করুন, সিঙ্গেল বা ব্যাচ অনুরোধে পেজ স্ক্র্যাপ করুন।",
   "hero.play":"প্লেগ্রাউন্ড খুলুন","hero.docs":"ডকস পড়ুন",
-  "stat.active":"সক্রিয় এক্সিট","stat.countries":"অঞ্চল","stat.themes":"থিম","stat.version":"সংস্করণ",
-  "feat.eyebrow":"বৈশিষ্ট্য","feat.title":"একটি পূর্ণ প্রক্সি ওয়েব অ্যাপ",
-  "feat.f1.t":"রোটেটিং এক্সিট","feat.f1.d":"প্রতিটি অনুরোধ নতুন স্টিকি এক্সিট সেশন বাঁধে, তাই আপনার পরিচয় ফাঁস হয় না।",
-  "feat.f2.t":"মিডিয়া স্ট্রিমিং","feat.f2.d":"ভিডিও, অডিও, ছবি, PDF ও ডাউনলোড Range সাপোর্টসহ স্ট্রিম করুন।",
-  "feat.f3.t":"সিঙ্গেল + ব্যাচ","feat.f3.d":"একটি অনুরোধ পাঠান অথবা প্রগ্রেস ও JSON/CSV এক্সপোর্টসহ ব্যাচ চালান।",
-  "feat.f4.t":"পূর্ণ API","feat.f4.d":"NebulaProxy-স্টাইলের REST API: auto/text/json/base64/stream মোড।",
+  "ip.label":"বর্তমান এগ্রেস IP","ip.region":"অঞ্চল","ip.auto":"স্বয়ংক্রিয়","ip.refresh":"রিফ্রেশ",
+  "stat.active":"গেটওয়ে","stat.countries":"অঞ্চল","stat.themes":"থিম","stat.langs":"ভাষা","stat.version":"সংস্করণ",
+  "feat.eyebrow":"বৈশিষ্ট্য","feat.title":"একটি পূর্ণ রোটেটিং প্রক্সি ওয়েব অ্যাপ",
+  "feat.f1.t":"রোটেটিং এক্সিট","feat.f1.d":"প্রতিটি অনুরোধ নতুন এক্সিট নোড বাঁধে, তাই আপনার পরিচয় ফাঁস হয় না।",
+  "feat.f2.t":"মিডিয়া স্ট্রিমিং","feat.f2.d":"Range সাপোর্টসহ ভিডিও, অডিও, ছবি, PDF ও ডাউনলোড স্ট্রিম করুন।",
+  "feat.f3.t":"সিঙ্গেল + ব্যাচ","feat.f3.d":"একটি অনুরোধ পাঠান বা ইনলাইন মিডিয়া প্রিভিউসহ ব্যাচ চালান।",
+  "feat.f4.t":"পূর্ণ REST API","feat.f4.d":"auto / text / json / base64 / stream মোড ও লাইভ এগ্রেস-IP এন্ডপয়েন্ট।",
+  "feat.f5.t":"লাইভ IP সিস্টেম","feat.f5.d":"রিয়েল-টাইম রোটেটিং এগ্রেস IP রিফ্রেশসহ।",
+  "feat.f6.t":"গভীর থিম","feat.f6.d":"ওশান অ্যাবিস সহ ছয়টি হাতে-টিউন করা ডার্ক থিম।",
   "nav.home":"হোম","nav.playground":"প্লেগ্রাউন্ড","nav.docs":"ডকস","nav.settings":"সেটিংস",
   "pg.eyebrow":"প্লেগ্রাউন্ড","pg.title":"প্রক্সি লাইভ টেস্ট","pg.sub":"সিঙ্গেল অনুরোধ পাঠিয়ে পূর্ণ রেসপন্স দেখুন।",
-  "pg.target":"টার্গেট URL","pg.method":"মেথড","pg.mode":"মোড","pg.country":"এক্সিট অঞ্চল",
+  "pg.target":"টার্গেট URL","pg.method":"মেথড","pg.mode":"মোড","pg.country":"এক্সিট অঞ্চল","pg.timeout":"টাইমআউট (মি.সে.)",
   "pg.send":"অনুরোধ পাঠান","pg.gallery":"জেনারেটেড ফলাফল","pg.idle":"প্রস্তুত","pg.hint":"URL দিন ও Send চাপুন।",
   "batch.title":"সিকোয়েন্সিয়াল URL ব্যাচ","batch.sub":"একাধিক URL পেস্ট করুন (প্রতি লাইনে একটি)।","batch.urls":"URL (প্রতি লাইনে একটি)",
   "docs.eyebrow":"ডকুমেন্টেশন","docs.title":"API রেফারেন্স","docs.sub":"যেকোনো অ্যাপে AuroraProxy যুক্ত করুন।",
   "docs.endpoints":"এন্ডপয়েন্ট","docs.params":"প্যারামিটার","docs.examples":"উদাহরণ","docs.res":"রেসপন্স এনভেলপ",
   "hist.title":"সাম্প্রতিক অনুরোধ","hist.sub":"ব্রাউজারে স্থানীয়ভাবে সংরক্ষিত।",
-  "set.eyebrow":"সেটিংস","set.title":"চেহারা","set.sub":"একটি গভীর থিম বাছুন — স্থানীয়ভাবে সংরক্ষিত।"
+  "set.eyebrow":"সেটিংস","set.title":"চেহারা ও আচরণ","set.sub":"থিম বাছুন ও প্রক্সি টিউন করুন — স্থানীয়ভাবে সংরক্ষিত।",
+  "set.general":"সাধারণ","set.autohist":"ইতিহাস স্বয়ং-সংরক্ষণ","set.autohist.s":"অনুরোধ History ট্যাবে সংরক্ষণ করুন",
+  "set.autoip":"IP স্বয়ং-রিফ্রেশ","set.autoip.s":"প্রতি ৩০ সেকেন্ডে লাইভ এগ্রেস IP আপডেট",
+  "set.motion":"মোশন ইফেক্ট","set.motion.s":"অরোরা ব্যাকগ্রাউন্ড অ্যানিমেশন",
+  "set.proxy":"প্রক্সি ডিফল্ট","set.defmode":"ডিফল্ট মোড","set.defcountry":"ডিফল্ট এক্সিট অঞ্চল","set.timeout":"ডিফল্ট টাইমআউট (মি.সে.)","set.batchdelay":"ব্যাচ ডিলে (মি.সে.)",
+  "set.shortcuts":"কীবোর্ড শর্টকাট",
+  "footer.by":"নির্মিত","footer.ver":"রোটেটিং-এক্সিট গেটওয়ে"
+}, hi: {
+  "hero.badge":"गेटवे ऑनलाइन","hero.t1":"हर हॉप पर","hero.t2":"नई पहचान।",
+  "hero.sub":"AuroraProxy हर अनुरोध को एक नए रोटेटिंग एग्जिट नोड से भेजता है — नया IP, नया सत्र, नई पहचान।",
+  "hero.play":"प्लेग्राउंड खोलें","hero.docs":"डॉक्स पढ़ें",
+  "ip.label":"वर्तमान एग्रेस IP","ip.region":"क्षेत्र","ip.auto":"ऑटो","ip.refresh":"रिफ्रेश",
+  "stat.active":"गेटवे","stat.countries":"क्षेत्र","stat.themes":"थीम","stat.langs":"भाषाएं","stat.version":"संस्करण",
+  "feat.eyebrow":"विशेषताएं","feat.title":"पूर्ण रोटेटिंग प्रॉक्सी वेब ऐप",
+  "feat.f1.t":"रोटेटिंग एग्जिट","feat.f1.d":"हर अनुरोध नए एग्जिट नोड से बंधता है।",
+  "feat.f2.t":"मीडिया स्ट्रीमिंग","feat.f2.d":"वीडियो, ऑडियो, चित्र, PDF स्ट्रीम करें।",
+  "feat.f3.t":"सिंगल + बैच","feat.f3.d":"एक अनुरोध या इनलाइन मीडिया के साथ बैच चलाएं।",
+  "feat.f4.t":"पूर्ण REST API","feat.f4.d":"auto/text/json/base64/stream मोड।",
+  "feat.f5.t":"लाइव IP सिस्टम","feat.f5.d":"रीयल-टाइम रोटेटिंग एग्रेस IP।",
+  "feat.f6.t":"डीप थीम","feat.f6.d":"छह डार्क थीम, ओशन एबिस सहित।",
+  "nav.home":"होम","nav.playground":"प्लेग्राउंड","nav.docs":"डॉक्स","nav.settings":"सेटिंग्स",
+  "pg.eyebrow":"प्लेग्राउंड","pg.title":"प्रॉक्सी लाइव टेस्ट","pg.sub":"एक अनुरोध भेजें।",
+  "pg.target":"टारगेट URL","pg.method":"मेथड","pg.mode":"मोड","pg.country":"एग्जिट क्षेत्र","pg.timeout":"टाइमआउट (ms)",
+  "pg.send":"अनुरोध भेजें","pg.gallery":"जनरेटेड परिणाम","pg.idle":"तैयार","pg.hint":"URL डालें और Send दबाएं।",
+  "batch.title":"सीक्वेंशियल URL बैच","batch.sub":"कई URL पेस्ट करें।","batch.urls":"URL (प्रति पंक्ति एक)",
+  "docs.eyebrow":"दस्तावेज़","docs.title":"API संदर्भ","docs.sub":"किसी भी ऐप में जोड़ें।",
+  "docs.endpoints":"एंडपॉइंट","docs.params":"पैरामीटर","docs.examples":"उदाहरण","docs.res":"रिस्पॉन्स",
+  "hist.title":"हाल के अनुरोध","hist.sub":"ब्राउज़र में स्थानीय रूप से सहेजे गए।",
+  "set.eyebrow":"सेटिंग्स","set.title":"रूप और व्यवहार","set.sub":"थीम चुनें।",
+  "set.general":"सामान्य","set.autohist":"इतिहास ऑटो-सेव","set.autohist.s":"अनुरोध History में सहेजें",
+  "set.autoip":"IP ऑटो-रिफ्रेश","set.autoip.s":"हर 30s पर एग्रेस IP अपडेट",
+  "set.motion":"मोशन इफेक्ट","set.motion.s":"ऑरोरा बैकग्राउंड",
+  "set.proxy":"प्रॉक्सी डिफ़ॉल्ट","set.defmode":"डिफ़ॉल्ट मोड","set.defcountry":"डिफ़ॉल्ट क्षेत्र","set.timeout":"डिफ़ॉल्ट टाइमआउट (ms)","set.batchdelay":"बैच डिले (ms)",
+  "set.shortcuts":"कीबोर्ड शॉर्टकट",
+  "footer.by":"के साथ बनाया","footer.ver":"रोटेटिंग-एग्जिट गेटवे"
+}, es: {
+  "hero.badge":"Puerta de enlace en línea","hero.t1":"Identidad nueva","hero.t2":"en cada salto.",
+  "hero.sub":"AuroraProxy enruta cada petición por un nodo de salida rotativo nuevo — una IP, sesión e identidad nuevas.",
+  "hero.play":"Abrir Playground","hero.docs":"Leer docs",
+  "ip.label":"IP de salida actual","ip.region":"Región","ip.auto":"auto","ip.refresh":"Actualizar",
+  "stat.active":"Puerta","stat.countries":"Regiones","stat.themes":"Temas","stat.langs":"Idiomas","stat.version":"Versión",
+  "feat.eyebrow":"Características","feat.title":"Una app proxy rotativa completa",
+  "feat.f1.t":"Salidas rotativas","feat.f1.d":"Cada petición usa un nodo de salida nuevo.",
+  "feat.f2.t":"Streaming de medios","feat.f2.d":"Video, audio, imágenes y PDF con Range.",
+  "feat.f3.t":"Single + Batch","feat.f3.d":"Una petición o un lote secuencial.",
+  "feat.f4.t":"API REST completa","feat.f4.d":"Modos auto/text/json/base64/stream.",
+  "feat.f5.t":"Sistema de IP en vivo","feat.f5.d":"IP de salida rotativa en tiempo real.",
+  "feat.f6.t":"Temas profundos","feat.f6.d":"Seis temas oscuros.",
+  "nav.home":"Inicio","nav.playground":"Playground","nav.docs":"Docs","nav.settings":"Ajustes",
+  "pg.eyebrow":"Playground","pg.title":"Prueba el proxy en vivo","pg.sub":"Envía una petición y revisa la respuesta.",
+  "pg.target":"URL destino","pg.method":"Método","pg.mode":"Modo","pg.country":"Región de salida","pg.timeout":"Tiempo (ms)",
+  "pg.send":"Enviar petición","pg.gallery":"Resultados","pg.idle":"Listo","pg.hint":"Introduce una URL y pulsa Enviar.",
+  "batch.title":"Lote secuencial de URLs","batch.sub":"Pega varias URLs (una por línea).","batch.urls":"URLs (una por línea)",
+  "docs.eyebrow":"Documentación","docs.title":"Referencia API","docs.sub":"Integra AuroraProxy en cualquier app.",
+  "docs.endpoints":"Endpoints","docs.params":"Parámetros","docs.examples":"Ejemplos","docs.res":"Envoltorio de respuesta",
+  "hist.title":"Peticiones recientes","hist.sub":"Guardadas localmente.",
+  "set.eyebrow":"Ajustes","set.title":"Apariencia y comportamiento","set.sub":"Elige un tema.",
+  "set.general":"General","set.autohist":"Auto-guardar historial","set.autohist.s":"Guardar peticiones en Historial",
+  "set.autoip":"Auto-refrescar IP","set.autoip.s":"Actualizar IP cada 30s",
+  "set.motion":"Efectos de movimiento","set.motion.s":"Animación de aurora",
+  "set.proxy":"Valores por defecto","set.defmode":"Modo por defecto","set.defcountry":"Región por defecto","set.timeout":"Tiempo por defecto (ms)","set.batchdelay":"Retardo de lote (ms)",
+  "set.shortcuts":"Atajos de teclado",
+  "footer.by":"hecho con","footer.ver":"puerta de salida rotativa"
+}, ar: {
+  "hero.badge":"البوابة متصلة","hero.t1":"هوية جديدة","hero.t2":"في كل قفزة.",
+  "hero.sub":"يوجّه AuroraProxy كل طلب عبر عقدة خروج دوّارة جديدة — عنوان IP وجلسة وهوية جديدة.",
+  "hero.play":"افتح الملعب","hero.docs":"اقرأ الوثائق",
+  "ip.label":"عنوان الخروج الحالي","ip.region":"المنطقة","ip.auto":"تلقائي","ip.refresh":"تحديث",
+  "stat.active":"البوابة","stat.countries":"المناطق","stat.themes":"السمات","stat.langs":"اللغات","stat.version":"الإصدار",
+  "feat.eyebrow":"الميزات","feat.title":"تطبيق بروكسي دوّار كامل",
+  "feat.f1.t":"مخارج دوّارة","feat.f1.d":"كل طلب يرتبط بعقدة خروج جديدة.",
+  "feat.f2.t":"بث الوسائط","feat.f2.d":"فيديو وصوت وصور وPDF.",
+  "feat.f3.t":"فردي + دفعة","feat.f3.d":"طلب واحد أو دفعة متسلسلة.",
+  "feat.f4.t":"REST API كامل","feat.f4.d":"أوضاع auto/text/json/base64/stream.",
+  "feat.f5.t":"نظام IP مباشر","feat.f5.d":"عنوان خروج دوّار في الوقت الحقيقي.",
+  "feat.f6.t":"سمات عميقة","feat.f6.d":"ست سمات داكنة.",
+  "nav.home":"الرئيسية","nav.playground":"الملعب","nav.docs":"الوثائق","nav.settings":"الإعدادات",
+  "pg.eyebrow":"الملعب","pg.title":"اختبر البروكسي مباشرة","pg.sub":"أرسل طلبًا وراجع الاستجابة.",
+  "pg.target":"عنوان URL","pg.method":"الطريقة","pg.mode":"الوضع","pg.country":"منطقة الخروج","pg.timeout":"المهلة (ms)",
+  "pg.send":"إرسال الطلب","pg.gallery":"النتائج","pg.idle":"جاهز","pg.hint":"أدخل URL واضغط إرسال.",
+  "batch.title":"دفعة URLs متسلسلة","batch.sub":"الصق عدة روابط (واحد لكل سطر).","batch.urls":"الروابط (واحد لكل سطر)",
+  "docs.eyebrow":"التوثيق","docs.title":"مرجع API","docs.sub":"دمج AuroraProxy في أي تطبيق.",
+  "docs.endpoints":"النقاط","docs.params":"المعلمات","docs.examples":"أمثلة","docs.res":"مغلف الاستجابة",
+  "hist.title":"الطلبات الأخيرة","hist.sub":"محفوظة محليًا.",
+  "set.eyebrow":"الإعدادات","set.title":"المظهر والسلوك","set.sub":"اختر سمة.",
+  "set.general":"عام","set.autohist":"حفظ السجل تلقائيًا","set.autohist.s":"حفظ الطلبات في السجل",
+  "set.autoip":"تحديث IP تلقائي","set.autoip.s":"تحديث IP كل 30 ثانية",
+  "set.motion":"تأثيرات الحركة","set.motion.s":"حركة الخلفية",
+  "set.proxy":"افتراضيات البروكسي","set.defmode":"الوضع الافتراضي","set.defcountry":"المنطقة الافتراضية","set.timeout":"المهلة الافتراضية (ms)","set.batchdelay":"تأخير الدفعة (ms)",
+  "set.shortcuts":"اختصارات لوحة المفاتيح",
+  "footer.by":"صُنع بـ","footer.ver":"بوابة خروج دوّارة"
+}, fr: {
+  "hero.badge":"Passerelle en ligne","hero.t1":"Identité neuve","hero.t2":"à chaque saut.",
+  "hero.sub":"AuroraProxy achemine chaque requête via un nœud de sortie rotatif — une IP, une session, une identité neuves.",
+  "hero.play":"Ouvrir Playground","hero.docs":"Lire la doc",
+  "ip.label":"IP de sortie actuelle","ip.region":"Région","ip.auto":"auto","ip.refresh":"Actualiser",
+  "stat.active":"Passerelle","stat.countries":"Régions","stat.themes":"Thèmes","stat.langs":"Langues","stat.version":"Version",
+  "feat.eyebrow":"Fonctionnalités","feat.title":"Une appli proxy rotative complète",
+  "feat.f1.t":"Sorties rotatives","feat.f1.d":"Chaque requête utilise un nœud de sortie frais.",
+  "feat.f2.t":"Streaming média","feat.f2.d":"Vidéo, audio, images et PDF.",
+  "feat.f3.t":"Unique + Lot","feat.f3.d":"Une requête ou un lot séquentiel.",
+  "feat.f4.t":"API REST complète","feat.f4.d":"Modes auto/text/json/base64/stream.",
+  "feat.f5.t":"Système d'IP en direct","feat.f5.d":"IP de sortie en temps réel.",
+  "feat.f6.t":"Thèmes profonds","feat.f6.d":"Six thèmes sombres.",
+  "nav.home":"Accueil","nav.playground":"Playground","nav.docs":"Docs","nav.settings":"Réglages",
+  "pg.eyebrow":"Playground","pg.title":"Testez le proxy en direct","pg.sub":"Envoyez une requête et inspectez la réponse.",
+  "pg.target":"URL cible","pg.method":"Méthode","pg.mode":"Mode","pg.country":"Région de sortie","pg.timeout":"Délai (ms)",
+  "pg.send":"Envoyer","pg.gallery":"Résultats","pg.idle":"Prêt","pg.hint":"Entrez une URL et appuyez sur Envoyer.",
+  "batch.title":"Lot séquentiel d'URLs","batch.sub":"Collez plusieurs URLs.","batch.urls":"URLs (une par ligne)",
+  "docs.eyebrow":"Documentation","docs.title":"Référence API","docs.sub":"Intégrez AuroraProxy.",
+  "docs.endpoints":"Endpoints","docs.params":"Paramètres","docs.examples":"Exemples","docs.res":"Enveloppe de réponse",
+  "hist.title":"Requêtes récentes","hist.sub":"Enregistrées localement.",
+  "set.eyebrow":"Réglages","set.title":"Apparence et comportement","set.sub":"Choisissez un thème.",
+  "set.general":"Général","set.autohist":"Historique auto","set.autohist.s":"Enregistrer les requêtes",
+  "set.autoip":"IP auto","set.autoip.s":"Actualiser l'IP toutes les 30s",
+  "set.motion":"Effets de mouvement","set.motion.s":"Animation d'aurore",
+  "set.proxy":"Défauts du proxy","set.defmode":"Mode par défaut","set.defcountry":"Région par défaut","set.timeout":"Délai par défaut (ms)","set.batchdelay":"Délai de lot (ms)",
+  "set.shortcuts":"Raccourcis clavier",
+  "footer.by":"fait avec","footer.ver":"passerelle de sortie rotative"
+}, de: {
+  "hero.badge":"Gateway online","hero.t1":"Neue Identität","hero.t2":"bei jedem Hop.",
+  "hero.sub":"AuroraProxy leitet jede Anfrage über einen neuen rotierenden Exit-Knoten — neue IP, neue Sitzung, neue Identität.",
+  "hero.play":"Playground öffnen","hero.docs":"Docs lesen",
+  "ip.label":"Aktuelle Egress-IP","ip.region":"Region","ip.auto":"auto","ip.refresh":"Aktualisieren",
+  "stat.active":"Gateway","stat.countries":"Regionen","stat.themes":"Themes","stat.langs":"Sprachen","stat.version":"Version",
+  "feat.eyebrow":"Funktionen","feat.title":"Eine vollständige rotierende Proxy-App",
+  "feat.f1.t":"Rotierende Exits","feat.f1.d":"Jede Anfrage nutzt einen frischen Exit-Knoten.",
+  "feat.f2.t":"Medien-Streaming","feat.f2.d":"Video, Audio, Bilder und PDF.",
+  "feat.f3.t":"Einzeln + Batch","feat.f3.d":"Eine Anfrage oder sequenzieller Batch.",
+  "feat.f4.t":"Vollständige REST-API","feat.f4.d":"auto/text/json/base64/stream-Modi.",
+  "feat.f5.t":"Live-IP-System","feat.f5.d":"Echtzeit-rotierende Egress-IP.",
+  "feat.f6.t":"Tiefe Themes","feat.f6.d":"Sechs dunkle Themes.",
+  "nav.home":"Start","nav.playground":"Playground","nav.docs":"Docs","nav.settings":"Einstellungen",
+  "pg.eyebrow":"Playground","pg.title":"Proxy live testen","pg.sub":"Anfrage senden und Antwort prüfen.",
+  "pg.target":"Ziel-URL","pg.method":"Methode","pg.mode":"Modus","pg.country":"Exit-Region","pg.timeout":"Timeout (ms)",
+  "pg.send":"Anfrage senden","pg.gallery":"Ergebnisse","pg.idle":"Bereit","pg.hint":"URL eingeben und Senden drücken.",
+  "batch.title":"Sequenzieller URL-Batch","batch.sub":"Mehrere URLs einfügen.","batch.urls":"URLs (eine pro Zeile)",
+  "docs.eyebrow":"Dokumentation","docs.title":"API-Referenz","docs.sub":"AuroraProxy integrieren.",
+  "docs.endpoints":"Endpunkte","docs.params":"Parameter","docs.examples":"Beispiele","docs.res":"Antwort-Envelope",
+  "hist.title":"Letzte Anfragen","hist.sub":"Lokal gespeichert.",
+  "set.eyebrow":"Einstellungen","set.title":"Aussehen & Verhalten","set.sub":"Theme wählen.",
+  "set.general":"Allgemein","set.autohist":"Verlauf auto-speichern","set.autohist.s":"Anfragen im Verlauf speichern",
+  "set.autoip":"IP auto-aktualisieren","set.autoip.s":"IP alle 30s aktualisieren",
+  "set.motion":"Bewegungseffekte","set.motion.s":"Aurora-Hintergrundanimation",
+  "set.proxy":"Proxy-Standards","set.defmode":"Standardmodus","set.defcountry":"Standardregion","set.timeout":"Standard-Timeout (ms)","set.batchdelay":"Batch-Verzögerung (ms)",
+  "set.shortcuts":"Tastenkürzel",
+  "footer.by":"gemacht mit","footer.ver":"rotierende Exit-Gateway"
+}, pt: {
+  "hero.badge":"Gateway online","hero.t1":"Identidade nova","hero.t2":"a cada salto.",
+  "hero.sub":"AuroraProxy roteia cada requisição por um nó de saída rotativo novo — IP, sessão e identidade novos.",
+  "hero.play":"Abrir Playground","hero.docs":"Ler docs",
+  "ip.label":"IP de saída atual","ip.region":"Região","ip.auto":"auto","ip.refresh":"Atualizar",
+  "stat.active":"Gateway","stat.countries":"Regiões","stat.themes":"Temas","stat.langs":"Idiomas","stat.version":"Versão",
+  "feat.eyebrow":"Recursos","feat.title":"Um app proxy rotativo completo",
+  "feat.f1.t":"Saídas rotativas","feat.f1.d":"Cada requisição usa um nó de saída novo.",
+  "feat.f2.t":"Streaming de mídia","feat.f2.d":"Vídeo, áudio, imagens e PDF.",
+  "feat.f3.t":"Único + Lote","feat.f3.d":"Uma requisição ou lote sequencial.",
+  "feat.f4.t":"API REST completa","feat.f4.d":"Modos auto/text/json/base64/stream.",
+  "feat.f5.t":"Sistema de IP ao vivo","feat.f5.d":"IP de saída rotativo em tempo real.",
+  "feat.f6.t":"Temas profundos","feat.f6.d":"Seis temas escuros.",
+  "nav.home":"Início","nav.playground":"Playground","nav.docs":"Docs","nav.settings":"Configurações",
+  "pg.eyebrow":"Playground","pg.title":"Teste o proxy ao vivo","pg.sub":"Envie uma requisição e veja a resposta.",
+  "pg.target":"URL de destino","pg.method":"Método","pg.mode":"Modo","pg.country":"Região de saída","pg.timeout":"Tempo (ms)",
+  "pg.send":"Enviar requisição","pg.gallery":"Resultados","pg.idle":"Pronto","pg.hint":"Digite uma URL e pressione Enviar.",
+  "batch.title":"Lote sequencial de URLs","batch.sub":"Cole várias URLs.","batch.urls":"URLs (uma por linha)",
+  "docs.eyebrow":"Documentação","docs.title":"Referência da API","docs.sub":"Integre o AuroraProxy.",
+  "docs.endpoints":"Endpoints","docs.params":"Parâmetros","docs.examples":"Exemplos","docs.res":"Envelope de resposta",
+  "hist.title":"Requisições recentes","hist.sub":"Salvas localmente.",
+  "set.eyebrow":"Configurações","set.title":"Aparência e comportamento","set.sub":"Escolha um tema.",
+  "set.general":"Geral","set.autohist":"Histórico automático","set.autohist.s":"Salvar requisições no histórico",
+  "set.autoip":"IP automático","set.autoip.s":"Atualizar IP a cada 30s",
+  "set.motion":"Efeitos de movimento","set.motion.s":"Animação de aurora",
+  "set.proxy":"Padrões do proxy","set.defmode":"Modo padrão","set.defcountry":"Região padrão","set.timeout":"Tempo padrão (ms)","set.batchdelay":"Atraso do lote (ms)",
+  "set.shortcuts":"Atalhos de teclado",
+  "footer.by":"feito com","footer.ver":"gateway de saída rotativa"
 }};
 
+const LANGS = [
+  { code:"en", name:"English" },
+  { code:"bn", name:"বাংলা (Bengali)" },
+  { code:"hi", name:"हिन्दी (Hindi)" },
+  { code:"es", name:"Español" },
+  { code:"ar", name:"العربية (Arabic)" },
+  { code:"fr", name:"Français" },
+  { code:"de", name:"Deutsch" },
+  { code:"pt", name:"Português" },
+];
+
 const THEMES = [
-  { id:"midnight", name:"Midnight Indigo", desc:"Deep indigo + electric blue", colors:["#6c8cff","#8b5cf6","#22d3ee"] },
-  { id:"forest",   name:"Deep Forest",      desc:"Dark green + teal",          colors:["#22c55e","#14b8a6","#84cc16"] },
-  { id:"amethyst", name:"Royal Amethyst",   desc:"Purple + pink",              colors:["#a855f7","#ec4899","#f43f5e"] },
-  { id:"abyss",    name:"Ocean Abyss",      desc:"Deep blue + cyan",           colors:["#0ea5e9","#22d3ee","#34d399"] },
-  { id:"noir",     name:"Obsidian Noir",    desc:"Monochrome black",           colors:["#e5e5e5","#a3a3a3","#737373"] },
+  { id:"abyss",    name:"Ocean Abyss",      desc:"Deep blue + cyan (signature)", colors:["#0ea5e9","#818cf8","#22d3ee"] },
+  { id:"aurora",   name:"Aurora Glow",      desc:"Teal + cyan aurora",          colors:["#14b8a6","#0ea5e9","#34d399"] },
+  { id:"midnight", name:"Midnight Indigo",  desc:"Indigo + electric blue",      colors:["#6c8cff","#8b5cf6","#22d3ee"] },
+  { id:"forest",   name:"Deep Forest",      desc:"Green + teal",                colors:["#22c55e","#14b8a6","#84cc16"] },
+  { id:"amethyst", name:"Royal Amethyst",   desc:"Purple + pink",               colors:["#a855f7","#ec4899","#f43f5e"] },
+  { id:"noir",     name:"Obsidian Noir",    desc:"Monochrome black",            colors:["#e5e5e5","#a3a3a3","#737373"] },
 ];
 
 let LANG = localStorage.getItem("aurora_lang") || "en";
@@ -608,8 +895,18 @@ function applyLang(){
   const d = I18N[LANG] || I18N.en;
   $$("[data-i18n]").forEach(el=>{ const k=el.getAttribute("data-i18n"); if(d[k]!=null) el.textContent=d[k]; });
   document.documentElement.lang = LANG;
-  $("#langLabel").textContent = LANG === "bn" ? "বাংলা" : "EN";
+  const cur = LANGS.find(l=>l.code===LANG);
+  const short = { en:"EN", bn:"বাং", hi:"हिं", es:"ES", ar:"ع", fr:"FR", de:"DE", pt:"PT" };
+  $("#langLabel") && ($("#langLabel").textContent = short[LANG] || "EN");
 }
+function renderLangMenu(){
+  const menu = $("#langMenu"); if(!menu) return; menu.innerHTML="";
+  LANGS.forEach(l=>{ const b=document.createElement("button");
+    b.className="lang-item"+(l.code===LANG?" active":"");
+    b.textContent=l.name; b.onclick=()=>{ setLang(l.code); $("#langWrap").classList.remove("open"); };
+    menu.appendChild(b); });
+}
+function setLang(code){ LANG=code; localStorage.setItem("aurora_lang",code); applyLang(); renderLangMenu(); }
 function setTheme(id){ document.documentElement.setAttribute("data-theme", id); localStorage.setItem("aurora_theme", id); renderThemeMenu(); renderThemeGrid(); }
 function renderThemeMenu(){
   const menu = $("#themeMenu"); menu.innerHTML = "";
@@ -632,21 +929,36 @@ function navigate(tab){
   if(tab==="history") renderHistory();
 }
 $$("[data-nav]").forEach(el=>el.addEventListener("click",e=>{ e.preventDefault(); navigate(el.getAttribute("data-nav")); }));
-$("#themeBtn").addEventListener("click",e=>{ e.stopPropagation(); $("#themeWrap").classList.toggle("open"); });
-document.addEventListener("click",()=>$("#themeWrap").classList.remove("open"));
-$("#langBtn").addEventListener("click",()=>{ LANG = LANG==="bn"?"en":"bn"; localStorage.setItem("aurora_lang",LANG); applyLang(); });
+$("#themeBtn").addEventListener("click",e=>{ e.stopPropagation(); $("#themeWrap").classList.toggle("open"); $("#langWrap").classList.remove("open"); });
+$("#langBtn").addEventListener("click",e=>{ e.stopPropagation(); $("#langWrap").classList.toggle("open"); $("#themeWrap").classList.remove("open"); });
+document.addEventListener("click",()=>{ $("#themeWrap").classList.remove("open"); $("#langWrap").classList.remove("open"); });
 
 /* utilities */
 function fmtBytes(b){ if(!b||b<=0) return "0 B"; const s=["B","KB","MB","GB"]; const i=Math.floor(Math.log(b)/Math.log(1024)); return parseFloat((b/Math.pow(1024,i)).toFixed(2))+" "+s[i]; }
-function fmtLat(ms){ return ms<1000?ms+" ms":(ms/1000).toFixed(2)+" s"; }
+function fmtLat(ms){ return ms<1000?Math.round(ms)+" ms":(ms/1000).toFixed(2)+" s"; }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 let toastTimer;
 function toast(msg,type){ const t=$("#toast"); t.textContent=msg; t.className="toast show"+(type?" toast-"+type:""); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className="toast",2800); }
 
+/* live IP system */
+async function fetchLiveIp(){
+  try{ const r = await fetch("/api/proxy/ip"); const j = await r.json();
+    if(j.ok && j.ip){ $("#hero-ip").textContent = j.ip; $("#hero-region").textContent = j.proxy_country||"auto"; $("#hero-ip").style.opacity="1"; return true; }
+  }catch(_){}
+  $("#hero-ip").textContent = "—"; return false;
+}
+async function refreshIp(manual){
+  const btn = $("#hero-ip-refresh"); btn.classList.add("spinning");
+  await fetchLiveIp();
+  setTimeout(()=>btn.classList.remove("spinning"), 400);
+  if(manual) toast("IP refreshed","ok");
+}
+$("#hero-ip-refresh").addEventListener("click",()=>refreshIp(true));
+
 /* stats */
 async function loadStats(){
   try{ const r = await fetch("/api/health"); const j = await r.json();
-    $("#stat-active").textContent = j.ok || j.status==="ok" ? "●" : "—";
+    $("#stat-active").textContent = (j.status==="ok") ? "●" : "—";
   }catch(_){ $("#stat-active").textContent = "—"; }
 }
 
@@ -657,7 +969,7 @@ function renderHistory(){
   const list=getHistory(); const c=$("#hist-list");
   if(!list.length){ c.innerHTML='<div class="list-empty">No requests yet.</div>'; return; }
   c.innerHTML=list.map(it=>{ const ok=it.status>=200&&it.status<300;
-    return `<div class="hist-item"><div class="hist-meta"><span class="${ok?'ok':'bad'}">[${it.method}] ${it.status}</span><span>⏱ ${fmtLat(it.elapsed_ms||0)}</span><span>📦 ${fmtBytes(it.size_bytes||0)}</span><span style="margin-left:auto">${new Date(it.timestamp).toLocaleTimeString()}</span></div><div class="hist-url">${esc(it.url)}</div></div>`;
+    return `<div class="hist-item"><div class="hist-meta"><span class="${ok?'ok':'bad'}">[${it.method}] ${it.status}</span><span>⏱ ${fmtLat(it.elapsed_ms||0)}</span><span>📦 ${fmtBytes(it.size_bytes||0)}</span>${it.ip?`<span>🌐 ${esc(it.ip)}</span>`:""}<span style="margin-left:auto">${new Date(it.timestamp).toLocaleTimeString()}</span></div><div class="hist-url">${esc(it.url)}</div></div>`;
   }).join("");
 }
 $("#hist-clear").addEventListener("click",()=>{ localStorage.removeItem("aurora_history"); renderHistory(); toast("History cleared","ok"); });
@@ -667,6 +979,15 @@ $("#hist-export").addEventListener("click",()=>{ const b=new Blob([JSON.stringif
 $("#set-autohist").addEventListener("change",e=>localStorage.setItem("aurora_autohist", e.target.checked));
 $("#set-timeout").addEventListener("change",e=>localStorage.setItem("aurora_timeout", e.target.value));
 $("#set-batchdelay").addEventListener("change",e=>localStorage.setItem("aurora_batchdelay", e.target.value));
+$("#set-defmode").addEventListener("change",e=>{ localStorage.setItem("aurora_defmode", e.target.value); $("#pg-mode").value=e.target.value; });
+$("#set-defcountry").addEventListener("change",e=>{ localStorage.setItem("aurora_defcountry", e.target.value); $("#pg-country").value=e.target.value; });
+$("#set-autoip").addEventListener("change",e=>{ localStorage.setItem("aurora_autoip", e.target.checked); if(e.target.checked) startIpPoll(); else stopIpPoll(); });
+$("#set-motion").addEventListener("change",e=>{ localStorage.setItem("aurora_motion", e.target.checked); $(".aurora-bg").style.display = e.target.checked ? "" : "none"; });
+
+/* IP poll */
+let ipPollTimer = null;
+function startIpPoll(){ stopIpPoll(); if(localStorage.getItem("aurora_autoip")==="false") return; fetchLiveIp(); ipPollTimer=setInterval(fetchLiveIp, 30000); }
+function stopIpPoll(){ if(ipPollTimer){ clearInterval(ipPollTimer); ipPollTimer=null; } }
 
 /* ==================== Playground single ==================== */
 let currentMethod = "GET";
@@ -721,13 +1042,13 @@ $("#pg-send").addEventListener("click",async()=>{
   try{
     const params=new URLSearchParams({url,mode}); if(country) params.set("country",country); if(timeout) params.set("timeout",timeout);
     const res=await fetch("/api/proxy?"+params.toString(),{signal:activeAbort.signal});
-    const elapsed=Math.round(performance.now()-t0); const sc=res.status; const isOk=sc>=200&&sc<300; const ct=res.headers.get("content-type")||"";
-    if(mode==="stream"||/^(image|video|audio)\//.test(ct)){ const blob=await res.blob(); resp.innerHTML=`<span class="status-tag ${isOk?'status-2xx':'status-4xx'}">${sc}</span>`; renderBinary(blob,ct,url,blob.size); meta.textContent=`Elapsed: ${elapsed}ms · Size: ${fmtBytes(blob.size)} · ${esc(res.headers.get("x-proxy-node")||"")}`; saveHistory({timestamp:Date.now(),url,method:currentMethod,status:sc,elapsed_ms:elapsed,size_bytes:blob.size}); return; }
+    const elapsed=Math.round(performance.now()-t0); const sc=res.status; const isOk=sc>=200&&sc<300; const ct=res.headers.get("content-type")||""; const proxyIp=res.headers.get("x-proxy-ip")||"";
+    if(mode==="stream"||/^(image|video|audio)\//.test(ct)){ const blob=await res.blob(); resp.innerHTML=`<span class="status-tag ${isOk?'status-2xx':'status-4xx'}">${sc}</span>`; renderBinary(blob,ct,url,blob.size); meta.textContent=`Elapsed: ${elapsed}ms · Size: ${fmtBytes(blob.size)} ${proxyIp?'· IP: '+esc(proxyIp):''}`; saveHistory({timestamp:Date.now(),url,method:currentMethod,status:sc,elapsed_ms:elapsed,size_bytes:blob.size,ip:proxyIp}); return; }
     if(ct.includes("application/json")){ const data=await res.json();
       if(data.error){ renderError(data.code||sc,data.error,data.suggestion); resp.innerHTML=`<span class="status-tag status-5xx">${sc}</span>`; }
-      else if(data.data_b64){ const bin=atob(data.data_b64); const bytes=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i); const blob=new Blob([bytes],{type:data.content_type||"application/octet-stream"}); resp.innerHTML=`<span class="status-tag ${isOk?'status-2xx':'status-4xx'}">${sc}</span>`; renderBinary(blob,data.content_type||"",url,data.size_bytes); meta.textContent=`Host: ${data.proxy_host||""} · ${data.elapsed_ms||elapsed}ms · ${fmtBytes(data.size_bytes||0)}`; }
-      else{ const body=typeof data.data==="string"?data.data:JSON.stringify(data.data,null,2); resp.innerHTML=`<span class="status-tag ${isOk?'status-2xx':'status-4xx'}">${sc}</span><pre style="margin-top:8px;white-space:pre-wrap;word-break:break-word">${esc(body)}</pre>`; meta.textContent=`Host: ${data.proxy_host||""} · ${data.elapsed_ms||elapsed}ms · ${fmtBytes(data.size_bytes||0)}`; }
-      saveHistory({timestamp:Date.now(),url,method:currentMethod,status:sc,elapsed_ms:elapsed,size_bytes:data.size_bytes||0});
+      else if(data.data_b64){ const bin=atob(data.data_b64); const bytes=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i); const blob=new Blob([bytes],{type:data.content_type||"application/octet-stream"}); resp.innerHTML=`<span class="status-tag ${isOk?'status-2xx':'status-4xx'}">${sc}</span>`; renderBinary(blob,data.content_type||"",url,data.size_bytes); meta.textContent=`Host: ${data.proxy_ip||data.proxy_host||""} · ${data.elapsed_ms||elapsed}ms · ${fmtBytes(data.size_bytes||0)}`; }
+      else{ const body=typeof data.data==="string"?data.data:JSON.stringify(data.data,null,2); resp.innerHTML=`<span class="status-tag ${isOk?'status-2xx':'status-4xx'}">${sc}</span><pre style="margin-top:8px;white-space:pre-wrap;word-break:break-word">${esc(body)}</pre>`; meta.textContent=`Host: ${data.proxy_ip||data.proxy_host||""} · ${data.elapsed_ms||elapsed}ms · ${fmtBytes(data.size_bytes||0)}`; }
+      saveHistory({timestamp:Date.now(),url,method:currentMethod,status:sc,elapsed_ms:elapsed,size_bytes:data.size_bytes||0,ip:data.proxy_ip||data.proxy_host||""});
       return;
     }
     const text=await res.text(); resp.innerHTML=`<span class="status-tag ${isOk?'status-2xx':'status-4xx'}">${sc}</span><pre style="margin-top:8px;white-space:pre-wrap;word-break:break-word">${esc(text)}</pre>`; meta.textContent=`Elapsed: ${elapsed}ms · Size: ${fmtBytes(text.length)}`; saveHistory({timestamp:Date.now(),url,method:currentMethod,status:sc,elapsed_ms:elapsed,size_bytes:text.length});
@@ -747,11 +1068,21 @@ $("#batch-run").addEventListener("click",async()=>{
   const runBtn=$("#batch-run"),cancelBtn=$("#batch-cancel"),pw=$("#batch-progress-wrap"),pf=$("#batch-progress-fill"),resDiv=$("#batch-results");
   runBtn.disabled=true; cancelBtn.style.display="inline-flex"; pw.style.display="block"; pf.style.width="0%"; resDiv.innerHTML=""; lastBatch=[];
   batchAbort=new AbortController();
-  for(let i=0;i<urls.length;i++){ if(batchAbort.signal.aborted) break; const target=urls[i]; const t0=performance.now(); let status=0,size=0;
-    try{ const res=await fetch("/api/proxy?"+new URLSearchParams({url:target,mode}),{signal:batchAbort.signal}); status=res.status; const buf=await res.arrayBuffer(); size=buf.byteLength; }
-    catch(err){ status=err.name==="AbortError"?499:502; }
-    const elapsed=Math.round(performance.now()-t0); const isOk=status>=200&&status<300; lastBatch.push({url:target,status,elapsed_ms:elapsed,size_bytes:size});
-    const row=document.createElement("div"); row.className="batch-row"; row.innerHTML=`<span class="b-status ${isOk?'ok':'bad'}">${status}</span><span class="b-url" title="${esc(target)}">${esc(target)}</span><span style="color:var(--text-faint)">${elapsed}ms</span><span style="color:var(--text-faint)">${fmtBytes(size)}</span>`; resDiv.appendChild(row);
+  for(let i=0;i<urls.length;i++){ if(batchAbort.signal.aborted) break; const target=urls[i]; const t0=performance.now(); let status=0,size=0,elapsed=0,ctype="";
+    try{
+      const res=await fetch("/api/proxy?"+new URLSearchParams({url:target,mode}),{signal:batchAbort.signal});
+      status=res.status; elapsed=Math.round(performance.now()-t0); ctype=(res.headers.get("content-type")||"").toLowerCase();
+      const isMedia=/^(image|video|audio)\//.test(ctype);
+      let blob=null,objUrl=null;
+      if(isMedia){ blob=await res.blob(); size=blob.size; objUrl=URL.createObjectURL(blob); }
+      else { const buf=await res.arrayBuffer(); size=buf.byteLength; }
+      const isOk=status>=200&&status<300; lastBatch.push({url:target,status,elapsed_ms:elapsed,size_bytes:size,content_type:ctype});
+      const row=document.createElement("div"); row.className="batch-row"+(isMedia?" batch-hasmedia":"");
+      const kind=isMedia?ctype.split("/")[0]:"";
+      row.innerHTML=`<div class="b-head"><span class="b-status ${isOk?'ok':'bad'}">${status}</span>${kind?`<span class="b-kind">${esc(kind)}</span>`:""}<span class="b-url" title="${esc(target)}">${esc(target)}</span><span style="color:var(--text-faint)">${elapsed}ms</span><span style="color:var(--text-faint)">${fmtBytes(size)}</span></div>${isMedia?`<div class="b-media"></div>`:""}`;
+      if(isMedia&&objUrl){ const box=row.querySelector(".b-media"); if(kind==="image") box.innerHTML=`<img src="${objUrl}" loading="lazy" alt=""/>`; else if(kind==="video") box.innerHTML=`<video src="${objUrl}" controls preload="none"></video>`; else if(kind==="audio") box.innerHTML=`<audio src="${objUrl}" controls preload="none"></audio>`; }
+      resDiv.appendChild(row);
+    }catch(err){ status=err.name==="AbortError"?499:502; elapsed=Math.round(performance.now()-t0); const isOk=status>=200&&status<300; lastBatch.push({url:target,status,elapsed_ms:elapsed,size_bytes:0}); const row=document.createElement("div"); row.className="batch-row"; row.innerHTML=`<span class="b-status ${isOk?'ok':'bad'}">${status}</span><span class="b-url" title="${esc(target)}">${esc(target)}</span><span style="color:var(--text-faint)">${elapsed}ms</span>`; resDiv.appendChild(row); }
     pf.style.width=Math.round(((i+1)/urls.length)*100)+"%";
     if(i<urls.length-1&&delay>0) await new Promise(r=>setTimeout(r,delay));
   }
@@ -764,12 +1095,30 @@ $("#batch-export-csv").addEventListener("click",()=>{ if(!lastBatch.length){ toa
 /* copy buttons */
 $$("[data-copy]").forEach(b=>b.addEventListener("click",()=>{ const code=b.closest(".code").querySelector("code").innerText; navigator.clipboard.writeText(code).then(()=>{ const o=b.textContent; b.textContent="Copied!"; setTimeout(()=>b.textContent=o,1500); }); }));
 
+/* keyboard shortcuts */
+document.addEventListener("keydown",e=>{
+  const tag=(e.target.tagName||"").toLowerCase();
+  if(tag==="input"||tag==="textarea"||tag==="select") return;
+  const map={"1":"home","2":"playground","3":"docs","4":"history","5":"settings"};
+  if(map[e.key]) navigate(map[e.key]);
+  if(e.key==="Enter"){ const act=document.querySelector(".page.active"); if(act && (act.id==="page-playground")) $("#pg-send").click(); }
+});
+
 /* init */
-(function(){ setTheme(localStorage.getItem("aurora_theme")||"midnight"); applyLang(); loadStats();
+(function(){
+  setTheme(localStorage.getItem("aurora_theme")||"abyss");
+  setLang(localStorage.getItem("aurora_lang")||"en");
+  loadStats(); fetchLiveIp();
   // restore settings
-  const t=localStorage.getItem("aurora_timeout"); if(t) $("#pg-timeout").value=parseInt(t,10); $("#set-timeout").value=t||"30000";
-  const d=localStorage.getItem("aurora_batchdelay"); $("#set-batchdelay").value=d||"500";
+  const t=localStorage.getItem("aurora_timeout"); if(t){ $("#pg-timeout").value=parseInt(t,10); $("#set-timeout").value=t; } else $("#set-timeout").value="30000";
+  const d=localStorage.getItem("aurora_batchdelay"); $("#batch-delay").value=d||"500"; $("#set-batchdelay").value=d||"500";
+  const m=localStorage.getItem("aurora_defmode"); if(m){ $("#pg-mode").value=m; $("#set-defmode").value=m; }
+  const cc=localStorage.getItem("aurora_defcountry"); if(cc){ $("#pg-country").value=cc; $("#set-defcountry").value=cc; }
   $("#set-autohist").checked = localStorage.getItem("aurora_autohist")!=="false";
+  $("#set-autoip").checked = localStorage.getItem("aurora_autoip")!=="false";
+  $("#set-motion").checked = localStorage.getItem("aurora_motion")!=="false";
+  $(".aurora-bg").style.display = ($("#set-motion").checked) ? "" : "none";
+  if($("#set-autoip").checked) startIpPoll();
 })();
 </script>
 </body>
