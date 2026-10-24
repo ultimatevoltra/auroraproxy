@@ -1,52 +1,51 @@
-# ✦ AuroraProxy — Rotating-Exit Proxy Gateway
+# ✦ AuroraProxy — Rotating-Exit Proxy (Vercel)
 
-A self-hosted, rotating-exit proxy gateway with a sleek multi-theme web console.
-Built from a generalized proxyium-style rotating-exit engine (pure PHP + curl, no external dependencies).
+A rotating-exit proxy web app + API. Each request is routed through a fresh rotating exit node (reverse-engineered proxyium flow), with single & batch requests, media streaming, and a full NebulaProxy-style REST API.
+
+## Architecture
+- **`api/proxy.js`** — Vercel serverless function that decodes the proxyium rotating-exit flow. Runs on Vercel; no PHP needed.
+- **`index.html`** — the web app: 5-bar bottom nav (Home / Playground / Docs / History / Settings), single + batch, media gallery, i18n (en/bn), 5 themes.
 
 ## Features
-- **Rotating exits** — every fetch binds a fresh sticky exit session, so your origin never leaks.
-- **Geo diversity** — exits across US / EU / SG / JP / IN / BR.
-- **5 deep themes** — Midnight Indigo, Deep Forest, Royal Amethyst, Ocean Abyss, Obsidian Noir.
-- **No API keys** — no sign-up, no third-party SDK.
-- **JSON or raw proxy modes** — return clean JSON metadata, or replay the original content-type/body.
+- Rotating exits · geo diversity (US/EU/SG/JP/IN/BR) · media streaming (Range seek)
+- Single + Batch requests with progress + JSON/CSV export
+- Full API (auto/text/json/base64/stream) · 5 deep themes
 
-## Requirements
-- PHP 7.4+ with the `curl` extension.
-- A writable `data/` directory.
-
-## Quick start
+## Deploy (Vercel)
 ```bash
-php -S 0.0.0.0:8080
-# open http://localhost:8080
+vercel
 ```
+`api/proxy.js` auto-registers as `/api/proxy`.
 
 ## API
-- `GET /proxy.php?url=<encoded target>&country=us&mode=json`
-  - `mode=raw` → replays the target content-type + body.
-  - `mode=json` → returns `{ ok, status, content_type, data, data_b64, proxy_host, country, elapsed_ms, via_proxy }`.
-- `GET /proxy.php?action=stats` → live pool stats (active sessions, countries, available exits).
-- `GET /proxy.php?action=health` → `{ status, version, timestamp }`.
+- `GET/POST /api/proxy?url=<target>&country=us&mode=json|auto|text|base64|stream`
+- `GET /api/health` → `{ status:"ok", version:"1.0.0" }`
+- `GET /api/version` → `{ version, name, engine }`
 
-## Config
-`data/config.json` (optional):
-```json
-{ "proxy": "", "api_token": "" }
-```
-- `proxy` — a clean-exit HTTP proxy (ip:port). Leave empty to use the built-in rotating-exit gateway only.
-- `api_token` — if set, requests must send `X-Api-Token: <token>` (or `?api_token=`).
+### Modes
+| mode | behaviour |
+|------|-----------|
+| auto | streams binaries; envelopes text/json |
+| text | raw text |
+| json | parsed JSON envelope |
+| base64 | `data_b64` for binary |
+| stream | raw passthrough with Range (video/audio seek) |
 
-`data/proxy.txt` — one proxy per line (`ip:port` or `ip:port:user:pass`), alternative to `config.json`.
+### Params
+| field | req | description |
+|-------|-----|-------------|
+| url | yes | target URL |
+| country | no | us/eu/sg/jp/in/br |
+| mode | no | auto/text/json/base64/stream |
+| method | no | HTTP method (default GET) |
+| timeout | no | ms, default 30000 |
+| gateway | no | set 0 to bypass exit |
 
-## Directory layout
-```
-auroraproxy/
-├── engine.php      # rotating-exit engine (curl, stdlib only)
-├── proxy.php       # API endpoint
-├── index.html      # web console (5 themes, en/bn i18n)
-└── data/           # sessions + config (git-ignored)
-```
+## Optional gate
+Set `API_TOKEN` env var on Vercel to require `Authorization: Bearer <token>`.
+
+## Optional self-host (PHP)
+`engine.php` + `proxy.php` retained for PHP hosts.
 
 ## Disclaimer
-AuroraProxy is a general rotating-exit web proxy for privacy and geo-reachability.
-It is not a circumvention tool and makes no guarantee of bypassing any specific
-network restriction.
+General rotating-exit web proxy for privacy/geo-reachability. Not a circumvention tool.
