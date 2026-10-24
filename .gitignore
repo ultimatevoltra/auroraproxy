@@ -1,5 +1,4 @@
-data/sessions/
-data/tmp/
-data/config.json
-data/proxy.txt
+data/
 .env
+node_modules/
+.vercel/

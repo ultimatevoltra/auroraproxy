@@ -1,0 +1,6 @@
+{
+  "name": "auroraproxy",
+  "scripts": { "dev": "vercel dev" },
+  "dependencies": {},
+  "devDependencies": {}
+}
