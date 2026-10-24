@@ -1,0 +1,5 @@
+data/sessions/
+data/tmp/
+data/config.json
+data/proxy.txt
+.env
