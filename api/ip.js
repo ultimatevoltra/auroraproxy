@@ -1,2 +1,1 @@
-export const config = { runtime: "edge" };
-export { default } from "./proxy.js";
+module.exports = require("./proxy.js");
