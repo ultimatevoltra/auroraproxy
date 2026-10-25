@@ -1,2 +1,2 @@
-// /api/version -> serves the version meta endpoint (reuses the monolithic handler)
+export const config = { runtime: "edge" };
 export { default } from "./proxy.js";

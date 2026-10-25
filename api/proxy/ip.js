@@ -1,2 +1,2 @@
-// /api/proxy/ip -> live egress IP of the rotating exit node
+export const config = { runtime: "edge" };
 export { default } from "../proxy.js";

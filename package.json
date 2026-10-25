@@ -1,8 +1,15 @@
 {
   "name": "auroraproxy",
   "version": "1.0.0",
+  "private": true,
   "type": "module",
-  "scripts": { "dev": "vercel dev" },
+  "description": "AuroraProxy — rotating-exit proxy gateway on Vercel serverless functions",
+  "scripts": {
+    "build": "node empty-build.mjs"
+  },
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {},
   "devDependencies": {}
 }
