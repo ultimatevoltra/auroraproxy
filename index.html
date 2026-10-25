@@ -86,6 +86,10 @@ a{color:var(--accent-hi);text-decoration:none}
 .hero-sub{color:var(--text-dim);font-size:clamp(14px,1.7vw,17px);max-width:640px;margin:0 auto 26px;line-height:1.55}
 .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 
+/* prominent hero globe — proxybin-style circular animation, placed up top */
+.hero-globe{position:relative;width:176px;height:176px;margin:-2px auto 10px;pointer-events:none}
+.hero-globe .orbit{position:absolute;inset:0;transform:none;left:0;top:0}
+
 /* live IP panel */
 .ip-hero{display:flex;align-items:center;justify-content:center;gap:14px;margin:22px auto 6px;max-width:560px;background:linear-gradient(180deg,var(--panel-raised),var(--panel-solid));border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;flex-wrap:wrap}
 .ip-hero .ip-label{font-family:var(--mono);font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em}
@@ -261,19 +265,26 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
 .net-label{position:absolute;left:18px;bottom:12px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)}
 .net-ip{position:absolute;right:18px;bottom:10px;font-family:var(--mono);font-size:15px;font-weight:700;color:var(--accent-hi)}
 
-/* proxybin-style circular orbital loader — rotating rings + orbiting nodes */
-.orbit{position:absolute;left:50%;top:50%;width:120px;height:120px;transform:translate(-50%,-50%);pointer-events:none}
-.orbit .ring{position:absolute;inset:0;border-radius:50%;border:1px solid transparent;border-top-color:var(--accent);border-right-color:var(--accent-2);opacity:.75;animation:orbit-spin 3.2s linear infinite}
-.orbit .ring.r2{inset:14px;border-top-color:var(--accent-3);border-right-color:transparent;border-left-color:var(--accent-2);opacity:.5;animation-duration:2.1s;animation-direction:reverse}
-.orbit .ring.r3{inset:28px;border-top-color:var(--accent-2);border-right-color:var(--accent);opacity:.35;animation-duration:1.4s}
-.orbit .core{position:absolute;inset:44px;border-radius:50%;background:var(--grad);box-shadow:0 0 18px var(--accent-glow),0 0 40px var(--accent-glow);animation:core-pulse 1.8s ease-in-out infinite}
-.orbit .orb{position:absolute;left:50%;top:-5px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--accent-hi);box-shadow:0 0 10px var(--accent-glow),0 0 20px var(--accent-glow);transform-origin:5px 65px}
-.orbit .orb.o1{animation:orbit-node 3.2s linear infinite}
-.orbit .orb.o2{animation:orbit-node 2.1s linear infinite reverse}
-.orbit .orb.o3{animation:orbit-node 1.4s linear infinite}
+/* proxybin-style circular orbital globe — rotating rings + longitude/latitude lines + orbiting nodes + pulsing core */
+.orbit{position:absolute;left:50%;top:50%;width:172px;height:172px;transform:translate(-50%,-54%);pointer-events:none}
+.orbit .ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid transparent;border-top-color:var(--accent);border-right-color:var(--accent-2);opacity:.85;animation:orbit-spin 4.2s linear infinite}
+.orbit .ring.r2{inset:20px;border-top-color:var(--accent-3);border-right-color:transparent;border-left-color:var(--accent-2);opacity:.55;animation-duration:2.6s;animation-direction:reverse}
+.orbit .ring.r3{inset:40px;border-top-color:var(--accent-2);border-right-color:var(--accent);opacity:.4;animation-duration:1.7s}
+/* latitude / longitude ellipse lines for a 3D globe read (proxybin-style) */
+.orbit .lat{position:absolute;left:8%;right:8%;border-radius:50%;border:1px solid rgba(255,255,255,.12)}
+.orbit .lat.l1{top:24%;bottom:24%}
+.orbit .lat.l2{top:36%;bottom:36%;opacity:.6}
+.orbit .lon{position:absolute;top:8%;bottom:8%;border-radius:50%;border:1px solid rgba(255,255,255,.10)}
+.orbit .lon.l3{left:24%;right:24%}
+.orbit .lon.l4{left:38%;right:38%;opacity:.55}
+.orbit .core{position:absolute;inset:56px;border-radius:50%;background:var(--grad);box-shadow:0 0 22px var(--accent-glow),0 0 52px var(--accent-glow);animation:core-pulse 1.9s ease-in-out infinite}
+.orbit .orb{position:absolute;left:50%;top:-6px;width:11px;height:11px;margin-left:-5.5px;border-radius:50%;background:var(--accent-hi);box-shadow:0 0 10px var(--accent-glow),0 0 22px var(--accent-glow);transform-origin:5.5px 92px}
+.orbit .orb.o1{animation:orbit-node 4.2s linear infinite}
+.orbit .orb.o2{animation:orbit-node 2.6s linear infinite reverse}
+.orbit .orb.o3{animation:orbit-node 1.7s linear infinite}
 @keyframes orbit-spin{to{transform:rotate(360deg)}}
 @keyframes orbit-node{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes core-pulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.18);opacity:1}}
+@keyframes core-pulse{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.2);opacity:1}}
 @media (prefers-reduced-motion:reduce){.orbit,.orbit *{animation:none!important}}
 
 .tabbar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--tabbar-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(4,18,28,.85);backdrop-filter:blur(20px);border-top:1px solid var(--border-soft);display:flex;justify-content:space-around;align-items:center;z-index:45}
@@ -330,6 +341,7 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
     <div class="container">
       <span class="hero-badge"><span class="dot-pulse"></span><span data-i18n="hero.badge">Gateway online</span></span>
       <h1><span data-i18n="hero.t1">Fresh identity</span><br><span class="grad" data-i18n="hero.t2">on every hop.</span></h1>
+      <div class="hero-globe"><div class="orbit"><span class="lat l1"></span><span class="lat l2"></span><span class="lon l3"></span><span class="lon l4"></span><span class="ring"></span><span class="ring r2"></span><span class="ring r3"></span><span class="orb o1"></span><span class="orb o2"></span><span class="orb o3"></span><span class="core"></span></div></div>
       <p class="hero-sub" data-i18n="hero.sub">AuroraProxy routes each request through a fresh rotating exit node — a new IP, a new session, a new identity. Fetch APIs, stream media, and scrape pages with single or batch requests.</p>
       <div class="hero-actions">
         <button class="btn btn-primary" data-nav="playground" data-i18n="hero.play">Open Playground</button>
@@ -350,10 +362,10 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
         </button>
       </div>
       <div class="stats">
-        <div class="stat"><div class="num" id="stat-active">—</div><div class="lbl" data-i18n="stat.active">Gateway</div></div>
+        <div class="stat"><div class="num" id="stat-active">—</div><div class="lbl" data-i18n="stat.active">Requests</div></div>
         <div class="stat"><div class="num" id="stat-countries">6</div><div class="lbl" data-i18n="stat.countries">Regions</div></div>
-        <div class="stat"><div class="num" id="stat-themes">6</div><div class="lbl" data-i18n="stat.themes">Themes</div></div>
-        <div class="stat"><div class="num" id="stat-langs">8</div><div class="lbl" data-i18n="stat.langs">Languages</div></div>
+        <div class="stat"><div class="num" id="stat-themes">—</div><div class="lbl" data-i18n="stat.themes">Avg latency</div></div>
+        <div class="stat"><div class="num" id="stat-langs">—</div><div class="lbl" data-i18n="stat.langs">Egress IP</div></div>
       </div>
     </div>
   </section>
@@ -373,7 +385,7 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
       </div>
     </div>
   </section>
-  <div class="net-wrap"><canvas id="net-canvas"></canvas><div class="orbit"><span class="ring"></span><span class="ring r2"></span><span class="ring r3"></span><span class="orb o1"></span><span class="orb o2"></span><span class="orb o3"></span><span class="core"></span></div><span class="net-label" data-i18n="net.label">Rotating exit network</span><span class="net-ip" id="net-ip">—</span></div>
+  <div class="net-wrap"><canvas id="net-canvas"></canvas><div class="orbit"><span class="lat l1"></span><span class="lat l2"></span><span class="lon l3"></span><span class="lon l4"></span><span class="ring"></span><span class="ring r2"></span><span class="ring r3"></span><span class="orb o1"></span><span class="orb o2"></span><span class="orb o3"></span><span class="core"></span></div><span class="net-label" data-i18n="net.label">Rotating exit network</span><span class="net-ip" id="net-ip">—</span></div>
   <footer class="footer">
     <div class="footer-tg">
       <p class="tg-copy" data-i18n="footer.tgcopy">Free API &amp; source codes on Telegram — join our channel for updates, new tools, bots and premium releases.</p>
@@ -682,7 +694,7 @@ const I18N = { en: {
   "hero.sub":"AuroraProxy routes each request through a fresh rotating exit node — a new IP, a new session, a new identity. Fetch APIs, stream media, and scrape pages with single or batch requests.",
   "hero.play":"Open Playground","hero.docs":"Read Docs",
   "ip.label":"Current egress IP","ip.region":"Region","ip.auto":"auto","ip.refresh":"Refresh",
-  "stat.active":"Gateway","stat.countries":"Regions","stat.themes":"Themes","stat.langs":"Languages","stat.version":"Version",
+  "stat.active":"Requests","stat.countries":"Regions","stat.themes":"Avg latency","stat.langs":"Egress IP","stat.version":"Version",
   "feat.eyebrow":"Features","feat.title":"A full rotating proxy web app",
   "feat.f1.t":"Rotating exits","feat.f1.d":"Each request binds a fresh exit node so your origin never leaks. Watch the IP change on every hop.",
   "feat.f2.t":"Media streaming","feat.f2.d":"Stream video, audio, images, PDFs and downloads with Range support for seeking.",
@@ -711,7 +723,7 @@ const I18N = { en: {
   "hero.sub":"AuroraProxy প্রতিটি অনুরোধ নতুন রোটেটিং এক্সিট নোড দিয়ে পাঠায় — নতুন IP, নতুন সেশন, নতুন পরিচয়। API ফেচ করুন, মিডিয়া স্ট্রিম করুন, সিঙ্গেল বা ব্যাচ অনুরোধে পেজ স্ক্র্যাপ করুন।",
   "hero.play":"প্লেগ্রাউন্ড খুলুন","hero.docs":"ডকস পড়ুন",
   "ip.label":"বর্তমান এগ্রেস IP","ip.region":"অঞ্চল","ip.auto":"স্বয়ংক্রিয়","ip.refresh":"রিফ্রেশ",
-  "stat.active":"গেটওয়ে","stat.countries":"অঞ্চল","stat.themes":"থিম","stat.langs":"ভাষা","stat.version":"সংস্করণ",
+  "stat.active":"অনুরোধ","stat.countries":"অঞ্চল","stat.themes":"গড় ল্যাটেন্সি","stat.langs":"এগ্রেস IP","stat.version":"সংস্করণ",
   "feat.eyebrow":"বৈশিষ্ট্য","feat.title":"একটি পূর্ণ রোটেটিং প্রক্সি ওয়েব অ্যাপ",
   "feat.f1.t":"রোটেটিং এক্সিট","feat.f1.d":"প্রতিটি অনুরোধ নতুন এক্সিট নোড বাঁধে, তাই আপনার পরিচয় ফাঁস হয় না।",
   "feat.f2.t":"মিডিয়া স্ট্রিমিং","feat.f2.d":"Range সাপোর্টসহ ভিডিও, অডিও, ছবি, PDF ও ডাউনলোড স্ট্রিম করুন।",
@@ -740,7 +752,7 @@ const I18N = { en: {
   "hero.sub":"AuroraProxy हर अनुरोध को एक नए रोटेटिंग एग्जिट नोड से भेजता है — नया IP, नया सत्र, नई पहचान।",
   "hero.play":"प्लेग्राउंड खोलें","hero.docs":"डॉक्स पढ़ें",
   "ip.label":"वर्तमान एग्रेस IP","ip.region":"क्षेत्र","ip.auto":"ऑटो","ip.refresh":"रिफ्रेश",
-  "stat.active":"गेटवे","stat.countries":"क्षेत्र","stat.themes":"थीम","stat.langs":"भाषाएं","stat.version":"संस्करण",
+  "stat.active":"अनुरोध","stat.countries":"क्षेत्र","stat.themes":"औसत विलंब","stat.langs":"एग्रेश IP","stat.version":"संस्करण",
   "feat.eyebrow":"विशेषताएं","feat.title":"पूर्ण रोटेटिंग प्रॉक्सी वेब ऐप",
   "feat.f1.t":"रोटेटिंग एग्जिट","feat.f1.d":"हर अनुरोध नए एग्जिट नोड से बंधता है।",
   "feat.f2.t":"मीडिया स्ट्रीमिंग","feat.f2.d":"वीडियो, ऑडियो, चित्र, PDF स्ट्रीम करें।",
@@ -768,7 +780,7 @@ const I18N = { en: {
   "hero.sub":"AuroraProxy enruta cada petición por un nodo de salida rotativo nuevo — una IP, sesión e identidad nuevas.",
   "hero.play":"Abrir Playground","hero.docs":"Leer docs",
   "ip.label":"IP de salida actual","ip.region":"Región","ip.auto":"auto","ip.refresh":"Actualizar",
-  "stat.active":"Puerta","stat.countries":"Regiones","stat.themes":"Temas","stat.langs":"Idiomas","stat.version":"Versión",
+  "stat.active":"Solicitudes","stat.countries":"Regiones","stat.themes":"Latencia media","stat.langs":"IP de salida","stat.version":"Versión",
   "feat.eyebrow":"Características","feat.title":"Una app proxy rotativa completa",
   "feat.f1.t":"Salidas rotativas","feat.f1.d":"Cada petición usa un nodo de salida nuevo.",
   "feat.f2.t":"Streaming de medios","feat.f2.d":"Video, audio, imágenes y PDF con Range.",
@@ -796,7 +808,7 @@ const I18N = { en: {
   "hero.sub":"يوجّه AuroraProxy كل طلب عبر عقدة خروج دوّارة جديدة — عنوان IP وجلسة وهوية جديدة.",
   "hero.play":"افتح الملعب","hero.docs":"اقرأ الوثائق",
   "ip.label":"عنوان الخروج الحالي","ip.region":"المنطقة","ip.auto":"تلقائي","ip.refresh":"تحديث",
-  "stat.active":"البوابة","stat.countries":"المناطق","stat.themes":"السمات","stat.langs":"اللغات","stat.version":"الإصدار",
+  "stat.active":"الطلبات","stat.countries":"المناطق","stat.themes":"متوسط الزمن","stat.langs":"IP الخروج","stat.version":"الإصدار",
   "feat.eyebrow":"الميزات","feat.title":"تطبيق بروكسي دوّار كامل",
   "feat.f1.t":"مخارج دوّارة","feat.f1.d":"كل طلب يرتبط بعقدة خروج جديدة.",
   "feat.f2.t":"بث الوسائط","feat.f2.d":"فيديو وصوت وصور وPDF.",
@@ -824,7 +836,7 @@ const I18N = { en: {
   "hero.sub":"AuroraProxy achemine chaque requête via un nœud de sortie rotatif — une IP, une session, une identité neuves.",
   "hero.play":"Ouvrir Playground","hero.docs":"Lire la doc",
   "ip.label":"IP de sortie actuelle","ip.region":"Région","ip.auto":"auto","ip.refresh":"Actualiser",
-  "stat.active":"Passerelle","stat.countries":"Régions","stat.themes":"Thèmes","stat.langs":"Langues","stat.version":"Version",
+  "stat.active":"Requêtes","stat.countries":"Régions","stat.themes":"Latence moy.","stat.langs":"IP sortie","stat.version":"Version",
   "feat.eyebrow":"Fonctionnalités","feat.title":"Une appli proxy rotative complète",
   "feat.f1.t":"Sorties rotatives","feat.f1.d":"Chaque requête utilise un nœud de sortie frais.",
   "feat.f2.t":"Streaming média","feat.f2.d":"Vidéo, audio, images et PDF.",
@@ -852,7 +864,7 @@ const I18N = { en: {
   "hero.sub":"AuroraProxy leitet jede Anfrage über einen neuen rotierenden Exit-Knoten — neue IP, neue Sitzung, neue Identität.",
   "hero.play":"Playground öffnen","hero.docs":"Docs lesen",
   "ip.label":"Aktuelle Egress-IP","ip.region":"Region","ip.auto":"auto","ip.refresh":"Aktualisieren",
-  "stat.active":"Gateway","stat.countries":"Regionen","stat.themes":"Themes","stat.langs":"Sprachen","stat.version":"Version",
+  "stat.active":"Anfragen","stat.countries":"Regionen","stat.themes":"Ø Latenz","stat.langs":"Egress-IP","stat.version":"Version",
   "feat.eyebrow":"Funktionen","feat.title":"Eine vollständige rotierende Proxy-App",
   "feat.f1.t":"Rotierende Exits","feat.f1.d":"Jede Anfrage nutzt einen frischen Exit-Knoten.",
   "feat.f2.t":"Medien-Streaming","feat.f2.d":"Video, Audio, Bilder und PDF.",
@@ -880,7 +892,7 @@ const I18N = { en: {
   "hero.sub":"AuroraProxy roteia cada requisição por um nó de saída rotativo novo — IP, sessão e identidade novos.",
   "hero.play":"Abrir Playground","hero.docs":"Ler docs",
   "ip.label":"IP de saída atual","ip.region":"Região","ip.auto":"auto","ip.refresh":"Atualizar",
-  "stat.active":"Gateway","stat.countries":"Regiões","stat.themes":"Temas","stat.langs":"Idiomas","stat.version":"Versão",
+  "stat.active":"Requisições","stat.countries":"Regiões","stat.themes":"Latência média","stat.langs":"IP de saída","stat.version":"Versão",
   "feat.eyebrow":"Recursos","feat.title":"Um app proxy rotativo completo",
   "feat.f1.t":"Saídas rotativas","feat.f1.d":"Cada requisição usa um nó de saída novo.",
   "feat.f2.t":"Streaming de mídia","feat.f2.d":"Vídeo, áudio, imagens e PDF.",
@@ -1039,9 +1051,18 @@ function stopNet(){ if(netStop){ netStop(); netStop=null; const cv=$("#net-canva
 
 /* stats */
 async function loadStats(){
+  // Requests = number of items saved in local history
+  const hist=getHistory(); const reqCount=hist.length;
+  if(reqCount>0){ $('#stat-active').textContent = reqCount; } else { $('#stat-active').textContent = '0'; }
+  // Avg latency = average elapsed_ms over history
+  const times=hist.map(h=>h.elapsed_ms).filter(t=>typeof t==='number'&&t>=0);
+  if(times.length){ const avg=Math.round(times.reduce((a,b)=>a+b,0)/times.length); $('#stat-themes').textContent = fmtLat(avg); }
+  else { $('#stat-themes').textContent = '—'; }
+  // Egress IP = last known IP (updated by fetchLiveIp)
+  if(window._lastIp){ $('#stat-langs').textContent = window._lastIp; } else { $('#stat-langs').textContent = '—'; }
   try{ const r = await fetch("/api/health"); const j = await r.json();
-    $("#stat-active").textContent = (j.status==="ok") ? "●" : "—";
-  }catch(_){ $("#stat-active").textContent = "—"; }
+    if(j && j.status==="ok" && false){}
+  }catch(_){}
 }
 
 /* history */
@@ -1204,6 +1225,5 @@ document.addEventListener("keydown",e=>{
   if($("#set-motion").checked) startNet();
 })();
 </script>
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"3279d41ec7804124a29acc6e692f9a2b","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
