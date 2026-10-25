@@ -248,6 +248,19 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
 .footer{padding:28px 0 14px;text-align:center;color:var(--text-faint);font-size:12.5px;border-top:1px solid var(--border-soft);margin-top:32px}
 .footer a{color:var(--text-dim)}
 
+/* Telegram channel CTA (proxybin-inspired) */
+.footer-tg{display:flex;flex-direction:column;align-items:center;gap:14px;padding:26px 18px;margin-bottom:20px}
+.footer-tg .tg-copy{color:var(--text-dim);font-size:13px;max-width:460px;line-height:1.5}
+.tg-btn{display:inline-flex;align-items:center;gap:10px;padding:13px 26px;border-radius:var(--radius-pill);background:linear-gradient(135deg,#2aabee 0%,#229ed9 100%);color:#fff;font-weight:700;font-size:15px;font-family:var(--font);text-decoration:none;box-shadow:0 10px 30px -8px rgba(42,171,238,.65),inset 0 -2px 0 rgba(0,0,0,.18);transition:transform .18s,box-shadow .18s}
+.tg-btn:hover{transform:translateY(-2px);box-shadow:0 14px 36px -8px rgba(42,171,238,.8),inset 0 -2px 0 rgba(0,0,0,.18);color:#fff}
+.tg-btn svg{width:20px;height:20px;flex:0 0 auto}
+
+/* network animation canvas */
+.net-wrap{position:relative;max-width:1120px;margin:0 auto 6px;height:120px;overflow:hidden;border-radius:var(--radius-lg);border:1px solid var(--border);background:radial-gradient(120% 160% at 50% 0%,var(--panel-solid),var(--bg-0))}
+.net-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.net-label{position:absolute;left:18px;bottom:12px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)}
+.net-ip{position:absolute;right:18px;bottom:10px;font-family:var(--mono);font-size:15px;font-weight:700;color:var(--accent-hi)}
+
 .tabbar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--tabbar-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(4,18,28,.85);backdrop-filter:blur(20px);border-top:1px solid var(--border-soft);display:flex;justify-content:space-around;align-items:center;z-index:45}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;color:var(--text-faint);cursor:pointer;padding:6px 2px;transition:all .15s;position:relative}
 .tab:hover{color:var(--text-dim)}
@@ -345,7 +358,15 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
       </div>
     </div>
   </section>
-  <footer class="footer"><span data-i18n="footer.by">crafted with</span> ♥ · AuroraProxy · <span data-i18n="footer.ver">rotating-exit gateway</span> · v1.0.1</footer>
+  <div class="net-wrap"><canvas id="net-canvas"></canvas><span class="net-label" data-i18n="net.label">Rotating exit network</span><span class="net-ip" id="net-ip">—</span></div>
+  <footer class="footer">
+    <div class="footer-tg">
+      <p class="tg-copy" data-i18n="footer.tgcopy">Free API &amp; source codes on Telegram — join our channel for updates, new tools, bots and premium releases.</p>
+      <a class="tg-btn" href="https://t.me/Ultra1Net" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.04 15.51l-.38 5.33c.54 0 .78-.23 1.06-.51l2.55-2.44 5.28 3.87c.97.53 1.66.26 1.92-.9l3.48-16.29c.31-1.43-.52-1.99-1.47-1.64L1.72 9.67c-1.4.55-1.38 1.33-.24 1.68l5.24 1.64L17.9 5.2c.57-.37 1.09-.17.66.22L9.04 15.51z"/></svg><span data-i18n="footer.join">Join @Ultra1Net</span></a>
+    </div>
+    <div><span data-i18n="footer.by">crafted with</span> ♥ · AuroraProxy · <span data-i18n="footer.ver">rotating-exit gateway</span> · v1.0.0</div>
+    <div style="margin-top:8px;display:inline-flex;align-items:center;gap:7px"><span class="dot-pulse"></span><span data-i18n="footer.live">gateway operational</span> · © 2026 Ultra1Net</div>
+  </footer>
 </main>
 
 <!-- PLAYGROUND -->
@@ -615,7 +636,7 @@ print(r.json())</code></pre>
       </div>
     </div>
   </section>
-  <footer class="footer">AuroraProxy · v1.0.1</footer>
+  <footer class="footer">AuroraProxy · v1.0.0</footer>
 </main>
 
 <!-- Tabbar -->
@@ -668,7 +689,8 @@ const I18N = { en: {
   "set.motion":"Motion effects","set.motion.s":"Aurora background animation",
   "set.proxy":"Proxy defaults","set.defmode":"Default mode","set.defcountry":"Default exit region","set.timeout":"Default timeout (ms)","set.batchdelay":"Batch delay (ms)",
   "set.shortcuts":"Keyboard shortcuts",
-  "footer.by":"crafted with","footer.ver":"rotating-exit gateway"
+  "net.label":"Rotating exit network",
+  "footer.by":"crafted with","footer.ver":"rotating-exit gateway","footer.tgcopy":"Free API & source codes on Telegram — join our channel for updates, new tools, bots and premium releases.","footer.join":"Join @Ultra1Net","footer.live":"gateway operational"
 }, bn: {
   "hero.badge":"গেটওয়ে চালু","hero.t1":"প্রতিটি হপে","hero.t2":"নতুন পরিচয়।",
   "hero.sub":"AuroraProxy প্রতিটি অনুরোধ নতুন রোটেটিং এক্সিট নোড দিয়ে পাঠায় — নতুন IP, নতুন সেশন, নতুন পরিচয়। API ফেচ করুন, মিডিয়া স্ট্রিম করুন, সিঙ্গেল বা ব্যাচ অনুরোধে পেজ স্ক্র্যাপ করুন।",
@@ -696,7 +718,8 @@ const I18N = { en: {
   "set.motion":"মোশন ইফেক্ট","set.motion.s":"অরোরা ব্যাকগ্রাউন্ড অ্যানিমেশন",
   "set.proxy":"প্রক্সি ডিফল্ট","set.defmode":"ডিফল্ট মোড","set.defcountry":"ডিফল্ট এক্সিট অঞ্চল","set.timeout":"ডিফল্ট টাইমআউট (মি.সে.)","set.batchdelay":"ব্যাচ ডিলে (মি.সে.)",
   "set.shortcuts":"কীবোর্ড শর্টকাট",
-  "footer.by":"নির্মিত","footer.ver":"রোটেটিং-এক্সিট গেটওয়ে"
+  "net.label":"রোটেটিং এক্সিট নেটওয়ার্ক",
+  "footer.by":"নির্মিত","footer.ver":"রোটেটিং-এক্সিট গেটওয়ে","footer.tgcopy":"Telegram-এ ফ্রি API ও সোর্স কোড — আপডেট, নতুন টুল, বট ও প্রিমিয়াম রিলিজের জন্য আমাদের চ্যানেলে যোগ দিন।","footer.join":"@Ultra1Net-এ যোগ দিন","footer.live":"গেটওয়ে চালু"
 }, hi: {
   "hero.badge":"गेटवे ऑनलाइन","hero.t1":"हर हॉप पर","hero.t2":"नई पहचान।",
   "hero.sub":"AuroraProxy हर अनुरोध को एक नए रोटेटिंग एग्जिट नोड से भेजता है — नया IP, नया सत्र, नई पहचान।",
@@ -943,7 +966,7 @@ function toast(msg,type){ const t=$("#toast"); t.textContent=msg; t.className="t
 /* live IP system */
 async function fetchLiveIp(){
   try{ const r = await fetch("/api/proxy/ip"); const j = await r.json();
-    if(j.ok && j.ip){ $("#hero-ip").textContent = j.ip; $("#hero-region").textContent = j.proxy_country||"auto"; $("#hero-ip").style.opacity="1"; return true; }
+    if(j.ok && j.ip){ $("#hero-ip").textContent = j.ip; $("#hero-region").textContent = j.proxy_country||"auto"; $("#hero-ip").style.opacity="1"; const ni=$("#net-ip"); if(ni) ni.textContent=j.ip; return true; }
   }catch(_){}
   $("#hero-ip").textContent = "—"; return false;
 }
@@ -954,6 +977,37 @@ async function refreshIp(manual){
   if(manual) toast("IP refreshed","ok");
 }
 $("#hero-ip-refresh").addEventListener("click",()=>refreshIp(true));
+
+/* network animation — rotating exit nodes + drifting packets */
+function initNetworkAnim(){
+  const cv=$("#net-canvas"); if(!cv) return;
+  const ctx=cv.getContext("2d"); let w,h,raf,nodes=[],packets=[];
+  function resize(){ const r=cv.getBoundingClientRect(); w=cv.width=r.width*devicePixelRatio; h=cv.height=r.height*devicePixelRatio; cv.style.width=r.width+"px"; cv.style.height=r.height+"px"; ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); w=r.width; h=r.height; seed(); }
+  function seed(){
+    const n=Math.max(5,Math.floor(w/130)); nodes=[]; for(let i=0;i<n;i++){ nodes.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:1.6+Math.random()*1.8}); }
+  }
+  function spawnPacket(){
+    if(!nodes.length) return; const a=nodes[Math.floor(Math.random()*nodes.length)], b=nodes[Math.floor(Math.random()*nodes.length)]; if(a===b) return;
+    packets.push({a,b,t:0,speed:.012+Math.random()*.014});
+  }
+  function step(){
+    ctx.clearRect(0,0,w,h);
+    const cs=getComputedStyle(document.documentElement); const accent=cs.getPropertyValue("--accent").trim()||"#0ea5e9"; const accent2=cs.getPropertyValue("--accent-2").trim()||"#22d3ee";
+    nodes.forEach(nd=>{ nd.x+=nd.vx; nd.y+=nd.vy; if(nd.x<0||nd.x>w) nd.vx*=-1; if(nd.y<0||nd.y>h) nd.vy*=-1; });
+    for(let i=0;i<nodes.length;i++) for(let j=i+1;j<nodes.length;j++){ const a=nodes[i],b=nodes[j]; const dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy); if(d<130){ ctx.strokeStyle=accent; ctx.globalAlpha=(1-d/130)*.14; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); } }
+    ctx.globalAlpha=1;
+    nodes.forEach(nd=>{ ctx.fillStyle=accent2; ctx.beginPath(); ctx.arc(nd.x,nd.y,nd.r,0,Math.PI*2); ctx.fill(); });
+    if(Math.random()<.2) spawnPacket();
+    packets=packets.filter(p=>p.t<1);
+    packets.forEach(p=>{ p.t+=p.speed; if(!p.a||!p.b) return; const x=p.a.x+(p.b.x-p.a.x)*p.t, y=p.a.y+(p.b.y-p.a.y)*p.t; ctx.fillStyle=accent; ctx.shadowColor=accent; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; });
+    raf=requestAnimationFrame(step);
+  }
+  resize(); window.addEventListener("resize",resize); raf=requestAnimationFrame(step);
+  return () => cancelAnimationFrame(raf);
+}
+let netStop=null;
+function startNet(){ if(!netStop && localStorage.getItem("aurora_motion")!=="false") netStop=initNetworkAnim(); }
+function stopNet(){ if(netStop){ netStop(); netStop=null; const cv=$("#net-canvas"); if(cv) cv.getContext("2d").clearRect(0,0,cv.width,cv.height); } }
 
 /* stats */
 async function loadStats(){
@@ -982,7 +1036,7 @@ $("#set-batchdelay").addEventListener("change",e=>localStorage.setItem("aurora_b
 $("#set-defmode").addEventListener("change",e=>{ localStorage.setItem("aurora_defmode", e.target.value); $("#pg-mode").value=e.target.value; });
 $("#set-defcountry").addEventListener("change",e=>{ localStorage.setItem("aurora_defcountry", e.target.value); $("#pg-country").value=e.target.value; });
 $("#set-autoip").addEventListener("change",e=>{ localStorage.setItem("aurora_autoip", e.target.checked); if(e.target.checked) startIpPoll(); else stopIpPoll(); });
-$("#set-motion").addEventListener("change",e=>{ localStorage.setItem("aurora_motion", e.target.checked); $(".aurora-bg").style.display = e.target.checked ? "" : "none"; });
+$("#set-motion").addEventListener("change",e=>{ localStorage.setItem("aurora_motion", e.target.checked); $(".aurora-bg").style.display = e.target.checked ? "" : "none"; if(e.target.checked) startNet(); else stopNet(); });
 
 /* IP poll */
 let ipPollTimer = null;
@@ -1108,7 +1162,7 @@ document.addEventListener("keydown",e=>{
 (function(){
   setTheme(localStorage.getItem("aurora_theme")||"abyss");
   setLang(localStorage.getItem("aurora_lang")||"en");
-  loadStats(); fetchLiveIp();
+  loadStats(); fetchLiveIp(); startNet();
   // restore settings
   const t=localStorage.getItem("aurora_timeout"); if(t){ $("#pg-timeout").value=parseInt(t,10); $("#set-timeout").value=t; } else $("#set-timeout").value="30000";
   const d=localStorage.getItem("aurora_batchdelay"); $("#batch-delay").value=d||"500"; $("#set-batchdelay").value=d||"500";
@@ -1119,6 +1173,7 @@ document.addEventListener("keydown",e=>{
   $("#set-motion").checked = localStorage.getItem("aurora_motion")!=="false";
   $(".aurora-bg").style.display = ($("#set-motion").checked) ? "" : "none";
   if($("#set-autoip").checked) startIpPoll();
+  if($("#set-motion").checked) startNet();
 })();
 </script>
 </body>
