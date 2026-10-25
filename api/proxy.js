@@ -1,3 +1,5 @@
+export const config = { runtime: "edge" };
+
 // ============================================================================
 // AuroraProxy — Vercel Serverless Function (rotating-exit proxy gateway)
 // ----------------------------------------------------------------------------
@@ -7,12 +9,26 @@
 //
 // RUNTIME-NEUTRAL: uses only Web-standard globals (fetch, atob/btoa, TextDecoder,
 // Uint8Array, AbortController) so it runs on BOTH the Vercel Node runtime AND
-// the Vercel Edge runtime with no Buffer/Node-isms.
+// the Vercel Edge runtime with no Buffer/Node-isms. This fixes the earlier
+// "FUNCTION_INVOCATION_FAILED" crash caused by Node-only APIs.
+//
+// Reverse-engineered 3-step flow (verified live 2026-10-24):
+//   1. POST https://cdn.proxyium.com/proxyrequest.php { type, proxy_country, url }
+//      -> HTML containing  new Function(atob('<b64>'))  == hex == JS with:
+//          location.href = 'https://<node>/__cpi.php?s=<token>&r=<b64>&__cpo=1'
+//   2. GET  <node>/__cpi.php?s=<token>&r=<b64>&__cpo=1
+//      -> CroxyProxy shell page + Set-Cookie: __cpc=<token> + data-r="<b64>"
+//      where data-r decodes to:  https://<node>?<path>&__cpo=<base64(origin)>
+//   3. GET  https://<node>?<path>&__cpo=<base64(origin)>  WITH  Cookie: __cpc=<token>
+//      -> the REAL target response (content + rotating exit IP)
+//
+// The `node` host changes on every signup = rotating egress. The __cpc token
+// is the sticky-session key; the __cpo param carries the re-encoded target.
 //
 // API surface:
 //   GET/POST /api/proxy?url=...&country=...&mode=auto|text|json|base64|stream
 //   GET       /api/proxy/ip   -> current egress IP (fresh rotating exit)
-//   GET       /api/ip
+//   GET       /api/ip         -> alias of above
 //   GET       /api/health
 //   GET       /api/version
 //   GET       /api/stats
@@ -37,6 +53,8 @@ const BINARY_CT = [
   "application/x-7z-compressed", "application/gzip", "application/x-tar", "font/",
 ];
 
+// --- browser-standard base64 / hex helpers (no Buffer) ----------------------
+
 function atobSafe(b64) {
   let s = String(b64).replace(/\s+/g, "");
   while (s.length % 4) s += "=";
@@ -50,6 +68,7 @@ function btoaSafe(str) {
 }
 
 function b64Url(str) {
+  // encode to standard base64 (proxyium expects standard, not url-safe)
   return btoaSafe(unescape(encodeURIComponent(str)));
 }
 
@@ -74,6 +93,8 @@ function utf8ToBase64(str) {
   const bytes = new TextEncoder().encode(str);
   return bytesToBase64(bytes);
 }
+
+// --- response helpers -------------------------------------------------------
 
 function json(obj, status) {
   return new Response(JSON.stringify(obj), {
@@ -112,6 +133,7 @@ function authorized(request, env) {
   return bearer === token || q === token;
 }
 
+// Decode the first shield: base64 -> hex -> JS containing location.href
 function decodeShield(b64) {
   const raw = atobSafe(b64);
   const js = hexDecode(raw);
@@ -120,10 +142,14 @@ function decodeShield(b64) {
   return m[1];
 }
 
+// Parse the raw Set-Cookie header(s) into { name: value } using the first
+// occurrence that has a non-empty (and non-expired) value.
 function parseCookies(setCookieHeader, targetNames) {
   const jar = {};
   if (!setCookieHeader) return jar;
   const names = targetNames || ["__cpc", "__cpcPopShown"];
+  // split into individual cookies (comma can appear in Expires, but for our
+  // controlled cookie names a simple split on newline/; boundaries is enough)
   const parts = setCookieHeader.split(/,(?=\s*[A-Za-z0-9_-]+=)/);
   for (const part of parts) {
     const first = part.split(";")[0];
@@ -132,13 +158,17 @@ function parseCookies(setCookieHeader, targetNames) {
     const name = first.slice(0, eq).trim();
     let value = first.slice(eq + 1).trim();
     if (names.includes(name) && value) {
+      // do not overwrite a captured value with a cleared ("expires 1970") cookie
       if (!jar[name]) jar[name] = value;
     }
   }
   return jar;
 }
 
+// Launch a fresh rotating exit and return { node, cpi, cpc, finalUrl }.
+// The finalUrl is the node URL that returns REAL content when fetched with cpc.
 async function launchExit(target, cc, timeoutMs) {
+  // 1. signup
   const body = new URLSearchParams({
     type: "",
     proxy_country: cc || "",
@@ -163,6 +193,7 @@ async function launchExit(target, cc, timeoutMs) {
   const nodeMatch = cpi.match(/https:\/\/[^/]+/);
   const node = nodeMatch ? nodeMatch[0] : "";
 
+  // 2. GET the __cpi.php shell -> harvest __cpc cookie + data-r
   const r2 = await fetch(cpi, {
     headers: {
       "User-Agent": randomUA(),
@@ -177,12 +208,14 @@ async function launchExit(target, cc, timeoutMs) {
   const cpc = jar.__cpc || "";
   if (!cpc) throw new Error("no __cpc cookie from exit");
 
+  // data-r carries the real content URL (base64). Fall back to building it.
   let finalUrl = "";
   const dm = page2.match(/data-r=["']([^"']+)["']/);
   if (dm) {
     try { finalUrl = atobSafe(dm[1]); } catch (_) {}
   }
   if (!finalUrl) {
+    // build node URL manually: node + target path + __cpo=base64(origin)
     let u;
     try { u = new URL(target); } catch (_) { throw new Error("invalid target"); }
     const origin = u.protocol + "//" + u.host;
@@ -193,6 +226,7 @@ async function launchExit(target, cc, timeoutMs) {
   return { node, cpi, cpc, finalUrl };
 }
 
+// Fetch REAL content through the exit node using the sticky __cpc session.
 async function fetchThroughExit(exit, signal, range) {
   const r = await fetch(exit.finalUrl, {
     method: "GET",
@@ -212,6 +246,7 @@ async function fetchThroughExit(exit, signal, range) {
   return { code: r.status, headers, bytes };
 }
 
+// Buffered fetch (for text/json/base64 modes) with retry on fresh exit.
 async function proxyBuffered(target, cc, env) {
   const timeoutMs = env.PROXY_TIMEOUT ? parseInt(env.PROXY_TIMEOUT, 10) : 30000;
   let lastErr = "";
@@ -244,6 +279,7 @@ async function proxyBuffered(target, cc, env) {
   return { ok: false, err: lastErr || "gateway unreachable" };
 }
 
+// Direct fetch fallback (no rotating exit) — used when gateway=0.
 async function proxyDirect(target, timeoutMs) {
   const t0 = Date.now();
   try {
@@ -284,6 +320,7 @@ async function route(request, env) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
+  // --- meta endpoints ---
   if (pathname === "/api/health") {
     return json({ status: "ok", version: "1.0.0", timestamp: new Date().toISOString() });
   }
@@ -294,6 +331,7 @@ async function route(request, env) {
     return json({ status: "ok", engine: "rotating-exit", note: "stateless on serverless" });
   }
 
+  // --- live egress IP (proxybin-style) ---
   if (pathname === "/api/proxy/ip" || pathname === "/api/ip") {
     const cc = (url.searchParams.get("country") || "").trim();
     const t0 = Date.now();
@@ -312,6 +350,7 @@ async function route(request, env) {
     }
   }
 
+  // --- auth gate (only meaningful for /api/proxy) ---
   if (pathname !== "/api/proxy") {
     return json({ ok: false, error: "Endpoint not found", code: 404 }, 404);
   }
@@ -319,6 +358,7 @@ async function route(request, env) {
     return json({ ok: false, error: "unauthorized", code: 401 }, 401);
   }
 
+  // --- parse params from query OR JSON/form body ---
   let params = {};
   for (const k of ["url", "country", "mode", "method", "timeout", "gateway", "headers", "body"]) {
     const v = url.searchParams.get(k);
@@ -348,6 +388,7 @@ async function route(request, env) {
   if (!target) return json({ ok: false, error: "Missing 'url' parameter", code: 400 }, 400);
   if (!/^https?:\/\//i.test(target)) return json({ ok: false, error: "Invalid URL", code: 400 }, 400);
 
+  // --- stream mode: raw passthrough with Range support ---
   if (mode === "stream") {
     try {
       const exit = await launchExit(target, cc, 20000);
@@ -376,6 +417,7 @@ async function route(request, env) {
     }
   }
 
+  // --- buffered modes ---
   const res = useGateway ? await proxyBuffered(target, cc, env) : await proxyDirect(target, timeoutMs);
   if (!res.ok) {
     return json({ ok: false, error: res.err || "fetch failed", code: 502 }, 502);
@@ -412,6 +454,7 @@ async function route(request, env) {
     }, (res.code >= 200 && res.code < 400) ? res.code : 200);
   }
 
+  // default: raw binary replay
   const hdr = new Headers();
   if (res.ct) hdr.set("Content-Type", res.ct);
   hdr.set("X-Proxy-Node", res.node || "rotating-exit");
