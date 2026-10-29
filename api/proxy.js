@@ -326,10 +326,10 @@ async function route(req, res) {
 
   // --- meta endpoints (always instant, no upstream) ---
   if (pathname === "/api/health") {
-    return sendJson(res, { status: "ok", version: "1.0.1", timestamp: new Date().toISOString() });
+    return sendJson(res, { status: "ok", version: "1.0.0", timestamp: new Date().toISOString() });
   }
   if (pathname === "/api/version") {
-    return sendJson(res, { version: "1.0.1", name: "auroraproxy", engine: "vercel-node-rotating-exit" });
+    return sendJson(res, { version: "1.0.0", name: "auroraproxy", engine: "vercel-node-rotating-exit" });
   }
   if (pathname === "/api/stats") {
     return sendJson(res, { status: "ok", engine: "rotating-exit", note: "stateless on serverless" });
