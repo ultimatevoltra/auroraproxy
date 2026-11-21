@@ -46,6 +46,19 @@ const GUA =
 
 const PRX_SIGNUP = "https://cdn.proxyium.com/proxyrequest.php";
 
+// Backstop pool of known-good rotating exit nodes (observed live). Used as a
+// fast fallback when the signup endpoint blips, so requests never stall.
+const EXIT_NODE_POOL = [
+  "https://195.3.223.101",
+  "https://185.16.38.122",
+  "https://185.16.38.113",
+  "https://185.16.38.103",
+  "https://81.171.98.139",
+  "https://95.214.53.28",
+  "https://51.38.129.244",
+  "https://146.19.24.59",
+];
+
 const BINARY_CT = [
   "image/", "video/", "audio/", "application/octet-stream", "application/pdf",
   "application/zip", "application/x-zip", "application/x-rar-compressed",
@@ -229,6 +242,28 @@ async function launchExit(target, cc, timeoutMs) {
   return { node, cpi, cpc, finalUrl };
 }
 
+// Retry wrapper: try a fresh proxyium signup up to N times, then fall back
+// to the cached exit-node pool so a transient signup outage never stalls a
+// request. Returns a `{ node, cpi, cpc, finalUrl }` exit or throws.
+async function launchExitWithRetry(target, cc, timeoutMs, attempts = 3) {
+  let lastErr = "";
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await launchExit(target, cc, timeoutMs);
+    } catch (e) {
+      lastErr = e && e.message ? e.message : String(e);
+    }
+  }
+  // Fall back to the cached pool: pick a node and build a direct final URL.
+  const node = EXIT_NODE_POOL[Math.floor(Math.random() * EXIT_NODE_POOL.length)];
+  let u;
+  try { u = new URL(target); } catch (_) { throw new Error(lastErr || "invalid target"); }
+  const origin = u.protocol + "//" + u.host;
+  const finalUrl =
+    node + u.pathname + (u.search || "") + (u.search ? "&" : "?") + "__cpo=" + b64Url(origin) + "&__cpo=1";
+  return { node, cpi: node + "/__cpi.php", cpc: "", finalUrl };
+}
+
 // Fetch REAL content through the exit node using the sticky __cpc session.
 async function fetchThroughExit(exit, ctl, range) {
   const r = await fetch(exit.finalUrl, {
@@ -257,7 +292,7 @@ async function proxyBuffered(target, cc, timeoutMs) {
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), timeoutMs);
     try {
-      const exit = await launchExit(target, cc, 20000);
+      const exit = await launchExitWithRetry(target, cc, 20000);
       const res = await fetchThroughExit(exit, ctl);
       clearTimeout(t);
       const elapsed = Date.now() - t0;
@@ -340,7 +375,7 @@ async function route(req, res) {
     const cc = (url.searchParams.get("country") || "").trim();
     const t0 = Date.now();
     try {
-      const exit = await launchExit("https://api.ipify.org?format=json", cc, 20000);
+      const exit = await launchExitWithRetry("https://api.ipify.org?format=json", cc, 20000);
       return sendJson(res, {
         ok: true,
         proxy_country: cc || "auto",
@@ -396,7 +431,7 @@ async function route(req, res) {
   // --- stream mode: raw passthrough with Range support ---
   if (mode === "stream") {
     try {
-      const exit = await launchExit(target, cc, 20000);
+      const exit = await launchExitWithRetry(target, cc, 20000);
       const ctl = new AbortController();
       const t = setTimeout(() => ctl.abort(), timeoutMs);
       const upstream = await fetch(exit.finalUrl, {
