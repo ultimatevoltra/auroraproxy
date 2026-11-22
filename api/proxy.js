@@ -111,6 +111,49 @@ function isBinary(ct) {
   return BINARY_CT.some((p) => lower.startsWith(p));
 }
 
+// ---------------------------------------------------------------------------
+// build_logs — structured request/response/error logging (console + ring buffer).
+// Every inbound request and outbound upstream hop is logged so the Playground
+// "Test API" and `/api/logs` can surface exactly what happened.
+// ---------------------------------------------------------------------------
+const LOG_RING = [];
+const LOG_MAX = 500;
+
+function build_logs(msg, extra) {
+  const entry = {
+    ts: new Date().toISOString(),
+    msg: String(msg || ""),
+    ...(extra && typeof extra === "object" ? extra : {}),
+  };
+  LOG_RING.push(entry);
+  if (LOG_RING.length > LOG_MAX) LOG_RING.shift();
+  try {
+    console.log(
+      JSON.stringify({ t: entry.ts, ...(extra && typeof extra === "object" ? extra : {}) , m: entry.msg })
+    );
+  } catch (_) {
+    console.log(entry.ts, entry.msg);
+  }
+  return entry;
+}
+
+function logRequest(method, pathname, query) {
+  build_logs("request", { kind: "request", method, path: pathname, q: (query || "").slice(0, 300) });
+}
+function logUpstream(tag, status, ms, node) {
+  build_logs("upstream", { kind: "upstream", tag, status, elapsed_ms: ms, node: node || "" });
+}
+function logError(tag, err) {
+  build_logs("error", { kind: "error", tag, error: (err && err.message) || String(err) });
+}
+
+function recent_logs(n) {
+  return LOG_RING.slice(-(n || 100));
+}
+
+// ---------------------------------------------------------------------------
+// randomUA / auth
+// ---------------------------------------------------------------------------
 function randomUA() {
   const oses = [
     "Windows NT 10.0; Win64; x64",
@@ -358,6 +401,7 @@ module.exports = async function handler(req, res) {
 async function route(req, res) {
   const url = new URL(req.url, "http://localhost");
   const pathname = url.pathname;
+  logRequest(req.method, pathname, url.search);
 
   // --- meta endpoints (always instant, no upstream) ---
   if (pathname === "/api/health") {
@@ -368,6 +412,13 @@ async function route(req, res) {
   }
   if (pathname === "/api/stats") {
     return sendJson(res, { status: "ok", engine: "rotating-exit", note: "stateless on serverless" });
+  }
+  // Admin/diagnostic: recent ring-buffer logs + a live self-test.
+  if (pathname === "/api/logs") {
+    return sendJson(res, { ok: true, count: LOG_RING.length, logs: recent_logs(200) });
+  }
+  if (pathname === "/api/selftest") {
+    return await selfTest(res);
   }
 
   // --- live egress IP (proxybin-style) ---
@@ -465,8 +516,10 @@ async function route(req, res) {
   // --- buffered modes ---
   const r = useGateway ? await proxyBuffered(target, cc, timeoutMs) : await proxyDirect(target, timeoutMs);
   if (!r.ok) {
+    logError("proxy", new Error(r.err || "fetch failed"));
     return sendJson(res, { ok: false, error: r.err || "fetch failed", code: 502 }, 502);
   }
+  logUpstream("proxy", r.code, r.elapsed_ms, r.node);
 
   const isBin = isBinary(r.ct);
 
@@ -497,6 +550,29 @@ async function route(req, res) {
   hdr["X-Proxy-IP"] = r.ip || "";
   hdr["X-Proxy-Country"] = cc || "auto";
   return sendBytes(res, r.bytes, r.code, hdr);
+}
+
+// Live self-test: exercise a real rotating exit and report health clearly so
+// the Playground "Test API" button can prove the engine works end-to-end.
+async function selfTest(res) {
+  const t0 = Date.now();
+  const report = { ok: true, checks: {}, elapsed_ms: 0 };
+  try {
+    const exit = await launchExitWithRetry("https://api.ipify.org?format=json", "us", 20000);
+    report.checks.exit = { ok: true, node: exit.node, cpi: exit.cpi };
+  } catch (e) {
+    report.checks.exit = { ok: false, error: (e && e.message) || String(e) };
+  }
+  try {
+    const r = await httpGet("https://api.ipify.org?format=json", { "User-Agent": GUA }, "follow", 15000);
+    report.checks.direct = { ok: r.ok, status: r.status };
+  } catch (e) {
+    report.checks.direct = { ok: false, error: (e && e.message) || String(e) };
+  }
+  report.elapsed_ms = Date.now() - t0;
+  report.ok = report.checks.exit.ok;
+  build_logs("selftest", { kind: "selftest", ok: report.ok, ms: report.elapsed_ms });
+  return sendJson(res, report);
 }
 
 function readBody(req) {

@@ -406,7 +406,9 @@ audio.media-preview{width:100%;max-height:none;border:none;background:transparen
         <p data-i18n="pg.sub">Send a single request and inspect the full response.</p>
       </div>
       <div class="tester">
-        <div class="tester-bar"><span class="t-dot r"></span><span class="t-dot y"></span><span class="t-dot g"></span><span class="tester-title">single request</span></div>
+        <div class="tester-bar"><span class="t-dot r"></span><span class="t-dot y"></span><span class="t-dot g"></span><span class="tester-title">single request</span>
+          <button class="mini-btn" id="pg-selftest" style="margin-left:auto">🧪 Self-Test</button>
+        </div>
         <div class="tester-body">
           <div class="field-row">
             <div class="field" style="flex:2 1 300px">
@@ -1159,6 +1161,37 @@ $("#pg-send").addEventListener("click",async()=>{
   finally{ activeAbort=null; btn.disabled=false; spinner.style.display="none"; sendText.textContent=I18N[LANG]?.["pg.send"]||"Send Request"; cancelBtn.style.display="none"; }
 });
 $("#pg-cancel").addEventListener("click",()=>{ if(activeAbort){ activeAbort.abort(); activeAbort=null; toast("Cancelled","warn"); } });
+
+/* ==================== Self-Test (diagnostic) ==================== */
+$("#pg-selftest").addEventListener("click", async ()=>{
+  const btn = $("#pg-selftest");
+  btn.disabled = true; btn.textContent = "🧪 Testing…";
+  const resp = $("#pg-response"); const meta = $("#pg-meta");
+  resp.innerHTML = `<span class="status-tag status-idle">Running self-test…</span>`;
+  try{
+    const ctl = new AbortController(); const t = setTimeout(()=>ctl.abort(), 30000);
+    const r = await fetch("/api/selftest", { signal: ctl.signal }); clearTimeout(t);
+    const j = await r.json();
+    const exitOk = j.checks?.exit?.ok;
+    const directOk = j.checks?.direct?.ok;
+    const rows = [
+      `<div class="err-card" style="border-color:${exitOk?'var(--accent-ok)':'var(--accent-bad)'}">
+        <div class="err-title">${exitOk?'✅':'❌'} Rotating-exit engine</div>
+        <div class="err-msg">${exitOk ? 'Node: '+esc(j.checks.exit.node||'?') : esc(j.checks.exit.error||'failed')}</div>
+      </div>`,
+      `<div class="err-card" style="border-color:${directOk?'var(--accent-ok)':'var(--accent-bad)'}">
+        <div class="err-title">${directOk?'✅':'⚠️'} Direct connectivity</div>
+        <div class="err-msg">${directOk ? 'HTTP '+j.checks.direct.status : esc(j.checks.direct.error||'failed')}</div>
+      </div>`,
+    ].join("");
+    resp.innerHTML = rows;
+    meta.textContent = `Self-test: ${j.elapsed_ms}ms · ${j.ok?'healthy':'degraded'}`;
+  }catch(e){
+    resp.innerHTML = `<div class="err-card"><div class="err-title">❌ Self-test failed</div><div class="err-msg">${esc(e.message||String(e))}</div></div>`;
+  }finally{
+    btn.disabled = false; btn.textContent = "🧪 Self-Test";
+  }
+});
 
 /* ==================== Batch ==================== */
 let batchAbort=null,lastBatch=[];
