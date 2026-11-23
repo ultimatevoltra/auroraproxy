@@ -3,7 +3,8 @@
   "framework": null,
   "functions": {
     "api/**/*.js": {
-      "runtime": "nodejs20.x"
+      "runtime": "nodejs26.x",
+      "maxDuration": 60
     }
   }
 }

@@ -1,7 +1,7 @@
 // ============================================================================
 // AuroraProxy — Vercel Serverless Function (rotating-exit proxy gateway)
 // ----------------------------------------------------------------------------
-// NODE RUNTIME handler (CommonJS-compatible ES module build).
+// NODE RUNTIME handler (Web-standard ES module: export async function GET).
 //
 // WHY THIS FILE CHANGED (root cause of FUNCTION_INVOCATION_TIMEOUT):
 //   The Vercel project runs functions on the Node.js runtime (Node 24.x).
@@ -11,9 +11,11 @@
 //   http.ServerResponse). A Web-standard handler never writes to `res`, so the
 //   function hangs forever and Vercel aborts with FUNCTION_INVOCATION_TIMEOUT.
 //
-// FIX: this file exports a Node-native `module.exports = handler` where
-//   handler(req, res) streams the response through Node's `res`. No Web
-//   `Request`/`Response` objects. Works reliably on the Node runtime.
+// FIX (FUNCTION_INVOCATION_TIMEOUT): the previous build exported a
+//   `(req, res)` handler whose `return new Response(...)` value Vercel ignored,
+//   so the request hung for 60s. Now we export Web-standard `GET`/`POST`
+//   handlers returning real `Response` objects, with `export const maxDuration`.
+//   Works reliably on the Node (nodejs26.x) runtime.
 //
 // Reverse-engineered 3-step flow (verified live 2026-10-25):
 //   1. POST https://cdn.proxyium.com/proxyrequest.php { type, proxy_country, url }
@@ -92,17 +94,17 @@ function utf8B64(str) {
 // ---------------------------------------------------------------------------
 // response helpers (Node http.ServerResponse)
 // ---------------------------------------------------------------------------
-function sendJson(res, obj, status) {
-  const body = Buffer.from(JSON.stringify(obj), "utf8");
-  res.writeHead(status || 200, {
-    "Content-Type": "application/json",
-    ...CORS_HEADERS,
+function sendJson(obj, status = 200) {
+  return new Response(JSON.stringify(obj), {
+    status,
+    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
   });
-  res.end(body);
 }
-function sendBytes(res, bytes, status, headers) {
-  res.writeHead(status, { ...CORS_HEADERS, ...headers });
-  res.end(Buffer.from(bytes));
+function sendBytes(bytes, status = 200, headers = {}) {
+  return new Response(Buffer.from(bytes), {
+    status,
+    headers: { ...CORS_HEADERS, ...headers },
+  });
 }
 
 function isBinary(ct) {
@@ -168,11 +170,11 @@ function randomUA() {
   return "Mozilla/5.0 (" + os + ") AppleWebKit/537.36 (KHTML, like Gecko) " + br + " Safari/537.36";
 }
 
-function authorized(req, env) {
+function authorized(request, env) {
   const token = (env.API_TOKEN || "").trim();
   if (!token) return true;
-  const url = new URL(req.url, "http://localhost");
-  const auth = req.headers["authorization"] || "";
+  const url = new URL(request.url, "http://localhost");
+  const auth = request.headers.get("authorization") || "";
   const bearer = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
   const q = (url.searchParams.get("token") || "").trim();
   return bearer === token || q === token;
@@ -385,37 +387,53 @@ function isJsonLike(text, ct) {
 // ---------------------------------------------------------------------------
 // Node-native handler
 // ---------------------------------------------------------------------------
-module.exports = async function handler(req, res) {
-  if (req.method === "OPTIONS") {
-    res.writeHead(204, CORS_HEADERS);
-    res.end();
-    return;
+export const maxDuration = 60;
+
+export async function GET(request) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
   }
   try {
-    await route(req, res);
+    return await route(request, "GET");
   } catch (e) {
-    sendJson(res, { ok: false, error: (e && e.message) || String(e), code: 500 }, 500);
+    return sendJson({ ok: false, error: (e && e.message) || String(e), code: 500 }, 500);
   }
-};
+}
 
-async function route(req, res) {
-  const url = new URL(req.url, "http://localhost");
+export async function POST(request) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
+  }
+  try {
+    return await route(request, request.method);
+  } catch (e) {
+    return sendJson({ ok: false, error: (e && e.message) || String(e), code: 500 }, 500);
+  }
+}
+
+export function OPTIONS() {
+  return new Response(null, { status: 204, headers: CORS_HEADERS });
+}
+
+async function route(request, method) {
+  const url = new URL(request.url, "http://localhost");
   const pathname = url.pathname;
-  logRequest(req.method, pathname, url.search);
+  const reqMethod = method || request.method || "GET";
+  logRequest(reqMethod, pathname, url.search);
 
   // --- meta endpoints (always instant, no upstream) ---
   if (pathname === "/api/health") {
-    return sendJson(res, { status: "ok", version: "1.0.0", timestamp: new Date().toISOString() });
+    return sendJson({ status: "ok", version: "1.0.0", timestamp: new Date().toISOString() });
   }
   if (pathname === "/api/version") {
-    return sendJson(res, { version: "1.0.0", name: "auroraproxy", engine: "vercel-node-rotating-exit" });
+    return sendJson({ version: "1.0.0", name: "auroraproxy", engine: "vercel-node-rotating-exit" });
   }
   if (pathname === "/api/stats") {
-    return sendJson(res, { status: "ok", engine: "rotating-exit", note: "stateless on serverless" });
+    return sendJson({ status: "ok", engine: "rotating-exit", note: "stateless on serverless" });
   }
   // Admin/diagnostic: recent ring-buffer logs + a live self-test.
   if (pathname === "/api/logs") {
-    return sendJson(res, { ok: true, count: LOG_RING.length, logs: recent_logs(200) });
+    return sendJson({ ok: true, count: LOG_RING.length, logs: recent_logs(200) });
   }
   if (pathname === "/api/selftest") {
     return await selfTest(res);
@@ -427,7 +445,7 @@ async function route(req, res) {
     const t0 = Date.now();
     try {
       const exit = await launchExitWithRetry("https://api.ipify.org?format=json", cc, 20000);
-      return sendJson(res, {
+      return sendJson({
         ok: true,
         proxy_country: cc || "auto",
         ip: exit.node.replace(/^https?:\/\//, ""),
@@ -435,17 +453,17 @@ async function route(req, res) {
         note: "Egress IP of the rotating node, not your own IP.",
       });
     } catch (e) {
-      return sendJson(res, { ok: false, error: (e && e.message) || String(e), code: 502 }, 502);
+      return sendJson({ ok: false, error: (e && e.message) || String(e), code: 502 }, 502);
     }
   }
 
   // --- auth gate (only meaningful for /api/proxy) ---
   if (pathname !== "/api/proxy") {
-    return sendJson(res, { ok: false, error: "Endpoint not found", code: 404 }, 404);
+    return sendJson({ ok: false, error: "Endpoint not found", code: 404 }, 404);
   }
   const env = { API_TOKEN: process.env.API_TOKEN || "" };
-  if (!authorized(req, env)) {
-    return sendJson(res, { ok: false, error: "unauthorized", code: 401 }, 401);
+  if (!authorized(request, env)) {
+    return sendJson({ ok: false, error: "unauthorized", code: 401 }, 401);
   }
 
   // --- parse params from query OR JSON/form body ---
@@ -454,17 +472,17 @@ async function route(req, res) {
     const v = url.searchParams.get(k);
     if (v !== null) params[k] = v;
   }
-  if (["POST", "PUT", "PATCH"].includes(req.method)) {
-    const ct = req.headers["content-type"] || "";
+  if (["POST", "PUT", "PATCH"].includes(reqMethod)) {
+    const ct = request.headers.get("content-type") || "";
     if (ct.includes("application/json")) {
       try {
-        const raw = await readBody(req);
+        const raw = await readBody(request);
         const j = JSON.parse(raw);
         if (j && typeof j === "object") params = { ...params, ...j };
       } catch (_) {}
     } else if (ct.includes("application/x-www-form-urlencoded")) {
       try {
-        const raw = await readBody(req);
+        const raw = await readBody(request);
         for (const [k, v] of new URLSearchParams(raw)) params[k] = v;
       } catch (_) {}
     }
@@ -476,8 +494,8 @@ async function route(req, res) {
   const useGateway = String(params.gateway || "1") !== "0";
   const timeoutMs = parseInt(params.timeout, 10) > 0 ? parseInt(params.timeout, 10) : 30000;
 
-  if (!target) return sendJson(res, { ok: false, error: "Missing 'url' parameter", code: 400 }, 400);
-  if (!/^https?:\/\//i.test(target)) return sendJson(res, { ok: false, error: "Invalid URL", code: 400 }, 400);
+  if (!target) return sendJson({ ok: false, error: "Missing 'url' parameter", code: 400 }, 400);
+  if (!/^https?:\/\//i.test(target)) return sendJson({ ok: false, error: "Invalid URL", code: 400 }, 400);
 
   // --- stream mode: raw passthrough with Range support ---
   if (mode === "stream") {
@@ -491,7 +509,7 @@ async function route(req, res) {
           Accept: "*/*",
           Referer: "https://proxyium.com/",
           Cookie: "__cpc=" + encodeURIComponent(exit.cpc),
-          ...(req.headers["range"] ? { Range: req.headers["range"] } : {}),
+          ...(request.headers.get("range") ? { Range: request.headers.get("range") } : {}),
         },
         redirect: "follow",
         signal: ctl.signal,
@@ -504,12 +522,10 @@ async function route(req, res) {
       }
       hdr["X-Proxy-Node"] = exit.node || "rotating-exit";
       hdr["X-Proxy-IP"] = exit.node.replace(/^https?:\/\//, "");
-      res.writeHead(upstream.status, hdr);
       const buf = Buffer.from(await upstream.arrayBuffer());
-      res.end(buf);
-      return;
+      return new Response(buf, { status: upstream.status, headers: { ...CORS_HEADERS, ...hdr } });
     } catch (e) {
-      return sendJson(res, { ok: false, error: (e && e.message) || String(e), code: 502 }, 502);
+      return sendJson({ ok: false, error: (e && e.message) || String(e), code: 502 }, 502);
     }
   }
 
@@ -517,7 +533,7 @@ async function route(req, res) {
   const r = useGateway ? await proxyBuffered(target, cc, timeoutMs) : await proxyDirect(target, timeoutMs);
   if (!r.ok) {
     logError("proxy", new Error(r.err || "fetch failed"));
-    return sendJson(res, { ok: false, error: r.err || "fetch failed", code: 502 }, 502);
+    return sendJson({ ok: false, error: r.err || "fetch failed", code: 502 }, 502);
   }
   logUpstream("proxy", r.code, r.elapsed_ms, r.node);
 
@@ -536,7 +552,7 @@ async function route(req, res) {
         data = text;
       }
     }
-    return sendJson(res, {
+    return sendJson({
       status: r.code, ok: true, data, data_b64, content_type: r.ct, headers: r.headers,
       proxy_host: r.node || "rotating-exit", proxy_ip: r.ip || "", country: cc || "auto",
       elapsed_ms: r.elapsed_ms, size_bytes: r.bytes.length, via_proxy: r.via_proxy,
@@ -549,12 +565,12 @@ async function route(req, res) {
   hdr["X-Proxy-Node"] = r.node || "rotating-exit";
   hdr["X-Proxy-IP"] = r.ip || "";
   hdr["X-Proxy-Country"] = cc || "auto";
-  return sendBytes(res, r.bytes, r.code, hdr);
+  return sendBytes(r.bytes, r.code, hdr);
 }
 
 // Live self-test: exercise a real rotating exit and report health clearly so
 // the Playground "Test API" button can prove the engine works end-to-end.
-async function selfTest(res) {
+async function selfTest() {
   const t0 = Date.now();
   const report = { ok: true, checks: {}, elapsed_ms: 0 };
   try {
@@ -572,14 +588,13 @@ async function selfTest(res) {
   report.elapsed_ms = Date.now() - t0;
   report.ok = report.checks.exit.ok;
   build_logs("selftest", { kind: "selftest", ok: report.ok, ms: report.elapsed_ms });
-  return sendJson(res, report);
+  return sendJson(report);
 }
 
-function readBody(req) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    req.on("data", (c) => chunks.push(c));
-    req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
-    req.on("error", reject);
-  });
+async function readBody(req) {
+  try {
+    return await req.text();
+  } catch {
+    return "";
+  }
 }
