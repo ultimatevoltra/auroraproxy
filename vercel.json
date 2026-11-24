@@ -1,6 +1,7 @@
 {
   "version": 2,
   "framework": null,
+  "outputDirectory": ".",
   "functions": {
     "api/**/*.js": {
       "maxDuration": 60
