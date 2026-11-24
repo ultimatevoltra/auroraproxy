@@ -3,7 +3,7 @@
   "framework": null,
   "functions": {
     "api/**/*.js": {
-      "runtime": "nodejs26.x",
+      "runtime": "@vercel/node@26.x",
       "maxDuration": 60
     }
   }
